@@ -1,4 +1,4 @@
-# Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may not
 # use this file except in compliance with the License. A copy of the License is
@@ -22,15 +22,14 @@ end
 
 After("@modelgen") do
   @gen_helper.cleanup
-end  
-
-Given("an aws-record model definition as:") do |string|
-  @table_name = "test_model_#{SecureRandom.uuid}"
-  @generator_args = string
 end
 
-When("we run the ModelGenerator") do
-  @gen_helper.run_generator ["#{@table_name}", "#{@generator_args}"]
+Given(/^we will create an aws-record model called: (.+)$/) do |string|
+   @table_name = string
+end
+
+When("we run the rails command line with:") do |cmd|
+  @gen_helper.run_in_test_app cmd
 end
 
 Then("a {string} should be generated with contents:") do |generated_type, body|

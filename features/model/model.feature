@@ -1,4 +1,4 @@
-# Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may not
 # use this file except in compliance with the License. A copy of the License is
@@ -16,11 +16,11 @@
 Feature: Aws::Record::Generators::ModelGenerator
 
 Scenario: Create a New Table with ModelGenerator
-  Given an aws-record model definition as:
+  Given we will create an aws-record model called: TestModel
+  When we run the rails command line with:
     """
-    id:hkey count:int:rkey
+    g aws_record:model TestModel id:hkey count:int:rkey --table_config primary:11,4
     """
-  When we run the ModelGenerator
   Then a "model" should be generated with contents:
     """
     string_attr :id, hash_key: true
@@ -28,11 +28,15 @@ Scenario: Create a New Table with ModelGenerator
     """
   And a "table_config" should be generated with contents:
     """
-    t.read_capacity_units 5
-    t.write_capacity_units 2
+    t.read_capacity_units 11
+    t.write_capacity_units 4
     """
   
-  When we migrate the TableConfig
+  When we run the rails command line with:
+    """
+    aws_record:migrate
+    """
+
   Then eventually the table should exist in DynamoDB
   And the TableConfig should be compatible with the remote table
   And the TableConfig should be an exact match with the remote table
