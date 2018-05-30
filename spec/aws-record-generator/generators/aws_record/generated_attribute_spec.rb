@@ -11,6 +11,8 @@
 # or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
+require 'spec_helper'
+
 module AwsRecord
   describe GeneratedAttribute do
     context 'when given valid input' do
@@ -25,7 +27,7 @@ module AwsRecord
       it 'properly defaults to string_attr when only a name is provided' do
         params = "uuid"
 
-        attribute = GeneratedAttribute.parse
+        attribute = GeneratedAttribute.parse(params)
         expect(attribute.name).to eq("uuid")
         expect(attribute.type).to eq(:string_attr)        
       end
@@ -66,8 +68,8 @@ module AwsRecord
           "hkey" => [:hash_key, true],
           "rkey" => [:range_key, true],
           "persist_nil" => [:persist_nil, true],
-          "db_attr_name{PostTitle}" => [:database_attribute_name, "PostTitle"],
-          "ddb_type{BOOL}" => [:dynamodb_type, "BOOL"],
+          "db_attr_name{PostTitle}" => [:database_attribute_name, '"PostTitle"'],
+          "ddb_type{BOOL}" => [:dynamodb_type, '"BOOL"'],
           "default_value{9}" => [:default_value, "9"]
         }
 
@@ -84,11 +86,11 @@ module AwsRecord
         end
 
         it 'properly handles using options in combination with one another' do
-          base_params = "uuid:"
+          base_params = "uuid:string:"
           10.times do 
             opts = VALID_OPTIONS.to_a.sample(2)
 
-            input_params = "#{base_params}#{opts[0][0]}:#{opts[1][0]}"
+            input_params = "#{base_params}#{opts[0][0]},#{opts[1][0]}"
             attribute = GeneratedAttribute.parse(input_params)
             expect(attribute.name).to eq("uuid")
             expect(attribute.type).to eq(:string_attr)
@@ -100,7 +102,7 @@ module AwsRecord
       it 'properly infers that a type has not been provided when other options are' do
         params = "uuid:hkey"
 
-        attribute = GeneratedAttribute.parse
+        attribute = GeneratedAttribute.parse(params)
         expect(attribute.name).to eq("uuid")
         expect(attribute.type).to eq(:string_attr)
         expect(attribute.options.to_a).to eq([[:hash_key, true]])
@@ -118,7 +120,7 @@ module AwsRecord
       end
 
       it 'properly detects when an invalid opt is provided' do
-        params = "uuid:hkey:invalid_opt"
+        params = "uuid:hkey,invalid_opt"
 
         expect {
           attribute = GeneratedAttribute.parse(params)

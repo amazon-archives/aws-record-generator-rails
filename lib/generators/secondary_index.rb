@@ -34,11 +34,11 @@ module AwsRecord
           case raw_option
 
           when /hkey\{(\w+)\}/
-            [:hash_key, $1.to_sym]
+            return :hash_key, $1.to_sym
           when /rkey\{(\w+)\}/
-            [:range_key, $1.to_sym]
+            return :range_key, $1.to_sym
           when /proj_type\{(\w+)\}/
-            [:projection_type, $1.to_sym]
+            return :projection_type, $1.to_sym
           else
             raise ArgumentError.new("Invalid option for secondary index #{raw_option}")
           end
