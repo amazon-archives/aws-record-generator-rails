@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Rails generators for aws-record"
   spec.description   = "Provides generators that integrate aws-record models with Rails scaffolding"
-  spec.homepage      = "https://github.com/awslabs"
+  spec.homepage      = "https://github.com/awslabs/aws-record-generator"
   spec.license       = "Apache 2.0"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.files = Dir['lib/**/*.rb']
 
-  spec.add_dependency('aws-record', '~> 1.0')
-  spec.add_dependency('rails', '~> 5.2.0')
+  spec.add_dependency('aws-record', '~> 2')
+  spec.add_dependency('rails', '>= 4.2')
 end
