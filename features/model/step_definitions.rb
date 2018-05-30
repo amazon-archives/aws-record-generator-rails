@@ -17,7 +17,7 @@ require 'generators/test_helper'
 require 'generators/aws_record/model/model_generator'
 
 Before do
-  @gen_helper = AwsRecord::GeneratorTestHelper.new(AwsRecord::ModelGenerator, File.expand_path("tmp"))
+  @gen_helper = AwsRecord::GeneratorTestHelper.new(AwsRecord::ModelGenerator, "tmp")
 end
 
 After("@modelgen") do

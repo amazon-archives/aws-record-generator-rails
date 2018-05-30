@@ -28,9 +28,11 @@ module AwsRecord
     include FileUtils
 
     def initialize(klass, dest)
+      @temp_root = File.expand_path(dest)
+
       GeneratorTestHelper.tests klass
-      temp_root = File.join(File.expand_path(dest, __dir__), "test_app")
-      GeneratorTestHelper.destination temp_root
+      temp_app_dest = File.join(File.expand_path(@temp_root, __dir__), "test_app")
+      GeneratorTestHelper.destination temp_app_dest
       
       destination_root_is_set?
       prepare_destination
@@ -48,7 +50,7 @@ module AwsRecord
     end
 
     def cleanup
-      rm_rf destination_root
+      rm_rf @temp_root
     end
 
     private
