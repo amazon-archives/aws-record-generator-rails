@@ -11,5 +11,10 @@
 # or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
-require 'aws-record'
-require 'aws-record-generator'
+require_relative 'generators/generated_attribute'
+require_relative 'generators/secondary_index'
+require_relative 'generators/test_helper'
+require_relative 'generators/aws_record/model/model_generator'
+
+module AwsRecord
+end

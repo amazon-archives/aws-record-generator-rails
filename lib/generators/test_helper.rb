@@ -12,11 +12,9 @@
 # and limitations under the License.
 
 require 'rails/generators/rails/app/app_generator'
-require "rails/generators/testing/assertions"
 require "rails/generators/testing/behaviour"
 require "fileutils"
 require "minitest/spec"
-require "byebug"
 
 module AwsRecord
   class GeneratorTestHelper
@@ -24,7 +22,6 @@ module AwsRecord
     attr_accessor :assertions
 
     include Rails::Generators::Testing::Behaviour
-    include Rails::Generators::Testing::Assertions
     include FileUtils
 
     def initialize(klass, dest)
@@ -40,13 +37,19 @@ module AwsRecord
       ensure_current_path
 
       self.assertions = 0
-    end 
+    end
 
     def run_in_test_app(cmd)
       cd destination_root
       a = `rails #{cmd}`
 
       ensure_current_path
+    end
+
+    def assert_file(generated_file, actual_file)
+      assert File.exist?(generated_file), "Expected file #{generated_file.inspect} to exist, but does not"
+      assert File.exist?(actual_file), "Expected file #{actual_file.inspect} to exist, but does not"
+      assert identical? generated_file, actual_file
     end
 
     def cleanup

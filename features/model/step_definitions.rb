@@ -12,9 +12,7 @@
 # and limitations under the License.
 
 require 'securerandom'
-
-require 'generators/test_helper'
-require 'generators/aws_record/model/model_generator'
+require 'aws-record-generator'
 
 Before do
   @gen_helper = AwsRecord::GeneratorTestHelper.new(AwsRecord::ModelGenerator, "tmp")
@@ -32,36 +30,18 @@ When("we run the rails command line with:") do |cmd|
   @gen_helper.run_in_test_app cmd
 end
 
-Then("a {string} should be generated with contents:") do |generated_type, body|
+Then("a {string} should be generated") do |generated_type|
   if generated_type == "model"
-    full_contents = 
-    """
-    ^class #{@table_name}
-      #{body}
-    end
-    """
-    
-    file_path = File.join(@gen_helper.destination_root, "app/models/#{@table_name}.rb")
-    @gen_helper.assert_file(file_path, /#{Regexp.quote(full_contents)}/)
-
+    generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{@table_name}.rb")
+    fixture_file_path = File.expand_path("fixtures/model/#{@table_name}.rb")
+    @gen_helper.assert_file(generated_file_path, fixture_file_path)
 
     require "#{file_path}"
     @model = Object.const_get("#{@table_name}")
   elsif generated_type == "table_config"
-    full_contents = 
-    """
-    ^module ModelTableConfig
-      def self.config
-        Aws::Record::TableConfig.define do |t|
-          t.model_class #{@table_name}
-          #{body}
-        end
-      end
-    end
-    """
-
-    file_path = File.join(@gen_helper.destination_root, "db/table_config/#{@table_name}_config.rb")
-    @gen_helper.assert_file(file_path, /#{Regexp.quote(full_contents)}/)
+    generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{@table_name}_config.rb")
+    fixture_file_path = File.expand_path("fixtures/table_config/#{@table_name}.rb")
+    @gen_helper.assert_file(generated_file_path, fixture_file_path)
     
     load file_path
     @table_config = ModelTableConfig.config
