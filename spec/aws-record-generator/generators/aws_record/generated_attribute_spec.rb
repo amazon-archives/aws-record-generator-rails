@@ -85,16 +85,23 @@ module AwsRecord
           end
         end
 
-        it 'properly handles using options in combination with one another' do
-          base_params = "uuid:string:"
-          10.times do 
-            opts = VALID_OPTIONS.to_a.sample(2)
+        context 'properly handles using options in combination with one another' do
+          it 'allows fields to have a default value and a ddb_type' do
+            params = "is_context:bool:persist_nil,ddb_type{BOOL}"
 
-            input_params = "#{base_params}#{opts[0][0]},#{opts[1][0]}"
-            attribute = GeneratedAttribute.parse(input_params)
+            attribute = GeneratedAttribute.parse(params)
+            expect(attribute.name).to eq("is_context")
+            expect(attribute.type).to eq(:boolean_attr)
+            expect(attribute.options.to_a).to eq([[:persist_nil, true], [:dynamodb_type, '"BOOL"']])
+          end
+
+          it 'allows a key field to have a db_attr_name' do
+            params  = "uuid:hkey,db_attr_name{PostTitle}"
+
+            attribute = GeneratedAttribute.parse(params)
             expect(attribute.name).to eq("uuid")
             expect(attribute.type).to eq(:string_attr)
-            expect(attribute.options.to_a).to eq([opts[0][1], opts[1][1]])
+            expect(attribute.options.to_a).to eq([[:hash_key, true], [:database_attribute_name, '"PostTitle"']])
           end
         end
       end
@@ -121,6 +128,22 @@ module AwsRecord
 
       it 'properly detects when an invalid opt is provided' do
         params = "uuid:hkey,invalid_opt"
+
+        expect {
+          attribute = GeneratedAttribute.parse(params)
+        }.to raise_error(ArgumentError)
+      end
+
+      it 'detects when a field is declared as both an hkey and rkey' do
+        params = "uuid:string:hkey,rkey"
+
+        expect {
+          attribute = GeneratedAttribute.parse(params)
+        }.to raise_error(ArgumentError)
+      end
+
+      it 'detects when a map_attr is declared as a hkey' do
+        params = "uuid:map:hkey"
 
         expect {
           attribute = GeneratedAttribute.parse(params)

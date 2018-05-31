@@ -26,10 +26,22 @@ module AwsRecord
         
         opts = opts.split(',') if opts
         type, opts = *parse_type_and_options(type, opts)
+        validate_opt_combs(name, type, opts)
+
         new(name, type, opts)
       end
 
       private
+
+      def validate_opt_combs(name, type, opts)
+        if opts
+            is_hkey = opts.key?(:hash_key)
+            is_rkey = opts.key?(:range_key)
+
+            raise ArgumentError.new("#{name} cannot be a range key and hash key simultaneously") if is_hkey && is_rkey
+            raise ArgumentError.new("#{name} cannot be a hash key and map_attr simultaneously") if type == :map_attr and is_hkey
+        end
+      end
       
       def parse_type_and_options(type, opts)
         opts = [] if not opts
