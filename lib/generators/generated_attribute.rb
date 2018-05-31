@@ -16,8 +16,11 @@ module AwsRecord
 
     OPTS = %w(hkey rkey persist_nil db_attr_name ddb_type default_value)
     attr_reader :name, :type, :options
+    @parse_errors = []
 
     class << self
+
+      attr_accessor :parse_errors
 
       def parse(field_definition)
         name, type, opts = field_definition.split(':')
@@ -25,7 +28,7 @@ module AwsRecord
         type, opts = "string", type if OPTS.any? { |opt| type.include? opt }
         
         opts = opts.split(',') if opts
-        type, opts = *parse_type_and_options(type, opts)
+        type, opts = *parse_type_and_options(name, type, opts)
         validate_opt_combs(name, type, opts)
 
         new(name, type, opts)
@@ -38,61 +41,63 @@ module AwsRecord
             is_hkey = opts.key?(:hash_key)
             is_rkey = opts.key?(:range_key)
 
-            raise ArgumentError.new("#{name} cannot be a range key and hash key simultaneously") if is_hkey && is_rkey
-            raise ArgumentError.new("#{name} cannot be a hash key and map_attr simultaneously") if type == :map_attr and is_hkey
+            @parse_errors << ArgumentError.new("Field #{name} cannot be a range key and hash key simultaneously") if is_hkey && is_rkey
+            @parse_errors << ArgumentError.new("Field #{name} cannot be a hash key and map_attr simultaneously") if type == :map_attr and is_hkey
         end
       end
       
-      def parse_type_and_options(type, opts)
+      def parse_type_and_options(name, type, opts)
         opts = [] if not opts
-        return parse_type(type), opts.map { |opt| parse_option(opt) }.to_h
+        return parse_type(name, type), opts.map { |opt| parse_option(name, opt) }.to_h
       end
 
-      def parse_option(opt)
+      def parse_option(name, opt)
         case opt
 
         when "hkey"
-            return :hash_key, true 
+          return :hash_key, true 
         when "rkey"
-            return :range_key, true
+          return :range_key, true
         when "persist_nil"
-            return :persist_nil, true
+          return :persist_nil, true
         when /db_attr_name\{(\w+)\}/
-            return :database_attribute_name, '"' + $1 + '"'
+          return :database_attribute_name, '"' + $1 + '"'
         when /ddb_type\{(S|N|B|BOOL|SS|NS|BS|M|L)\}/i
-            return :dynamodb_type, '"' + $1.upcase + '"'
+          return :dynamodb_type, '"' + $1.upcase + '"'
         when /default_value\{(.+)\}/
-            return :default_value, $1
+          return :default_value, $1
         else
-          raise ArgumentError.new("You provided an invalid option: #{opt}")
+          @parse_errors << ArgumentError.new("You provided an invalid option for #{name}: #{opt}")
+          return :error_opt, true
         end
       end
 
-      def parse_type(type)
+      def parse_type(name, type)
         case type.downcase
 
         when "bool", "boolean"
-            :boolean_attr
+          :boolean_attr
         when "date"
-            :date_attr
+          :date_attr
         when "datetime"
-            :datetime_attr
+          :datetime_attr
         when "float"
-            :float_attr
+          :float_attr
         when "int", "integer"
-            :integer_attr
+          :integer_attr
         when "list"
-            :list_attr
+          :list_attr
         when "map"
-            :map_attr
+          :map_attr
         when "num_set", "numeric_set", "nset"
-            :numeric_set_attr
+          :numeric_set_attr
         when "string_set", "s_set", "sset"
-            :string_set_attr
+          :string_set_attr
         when "string"
-            :string_attr
+          :string_attr
         else
-          raise ArgumentError.new("Invalid type: #{type}")
+          @parse_errors << ArgumentError.new("Invalid type for #{name}: #{type}")
+          :error_attr
         end
       end
     end

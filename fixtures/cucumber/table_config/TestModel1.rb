@@ -1,11 +1,11 @@
 require 'aws-record'
 
 module ModelTableConfig
-    def self.config
-        Aws::Record::TableConfig.define do |t|
-          t.model_class TestModel1
-          t.read_capacity_units 11
-          t.write_capacity_units 4
-        end
+  def self.config
+    Aws::Record::TableConfig.define do |t|
+      t.model_class TestModel1
+      t.read_capacity_units 11
+      t.write_capacity_units 4
     end
+  end
 end

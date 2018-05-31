@@ -117,37 +117,36 @@ module AwsRecord
     end
 
     context 'when invalid input is provided' do
+      after(:example) do
+        GeneratedAttribute.parse_errors.clear
+      end
     
       it 'properly detects when an invalid type is provided' do
         params = "uuid:invalid_type:hkey"
 
-        expect {
-          attribute = GeneratedAttribute.parse(params)
-        }.to raise_error(ArgumentError)
+        attribute = GeneratedAttribute.parse(params)
+        expect(GeneratedAttribute.parse_errors.length).to eq(1)
       end
 
       it 'properly detects when an invalid opt is provided' do
         params = "uuid:hkey,invalid_opt"
 
-        expect {
-          attribute = GeneratedAttribute.parse(params)
-        }.to raise_error(ArgumentError)
+        attribute = GeneratedAttribute.parse(params)
+        expect(GeneratedAttribute.parse_errors.length).to eq(1)        
       end
 
       it 'detects when a field is declared as both an hkey and rkey' do
         params = "uuid:string:hkey,rkey"
 
-        expect {
-          attribute = GeneratedAttribute.parse(params)
-        }.to raise_error(ArgumentError)
+        attribute = GeneratedAttribute.parse(params)
+        expect(GeneratedAttribute.parse_errors.length).to eq(1)
       end
 
       it 'detects when a map_attr is declared as a hkey' do
         params = "uuid:map:hkey"
 
-        expect {
-          attribute = GeneratedAttribute.parse(params)
-        }.to raise_error(ArgumentError)
+        attribute = GeneratedAttribute.parse(params)
+        expect(GeneratedAttribute.parse_errors.length).to eq(1)
       end
     
     end
