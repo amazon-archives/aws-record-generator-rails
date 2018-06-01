@@ -1,8 +1,10 @@
 Description:
-    TODO fill this out
+    rails generator for aws-record models
 
 Example:
-    rails generate aws_record:model NAME
+    rails generate aws_record:model Forum forum_uuid:hkey post_id:rkey post_title post_body tags:sset:default_value{Set.new} created_at:datetime:d_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false}
 
     This will create:
-        what/will/it/create
+        app/models/forum.rb
+        db/table_config/forum_config.rb
+        lib/tasks/table_config_migrate_task.rake # This is created once the first time the generator is run
