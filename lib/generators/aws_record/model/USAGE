@@ -1,0 +1,8 @@
+Description:
+    TODO fill this out
+
+Example:
+    rails generate aws_record:model NAME
+
+    This will create:
+        what/will/it/create
