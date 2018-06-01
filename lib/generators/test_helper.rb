@@ -52,6 +52,10 @@ module AwsRecord
       assert identical? generated_file, actual_file
     end
 
+    def assert_not_file(file_path)
+      assert !File.exist?(file_path), "Expected file #{relative.inspect} to not exist, but does"
+    end
+
     def cleanup
       rm_rf @temp_root
     end
