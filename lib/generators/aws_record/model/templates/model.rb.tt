@@ -1,0 +1,13 @@
+require 'aws-record'
+
+<% module_namespacing do -%>
+class <%= class_name %>
+  include Aws::Record
+<%= '  disable_mutation_tracking
+' if mutation_tracking_disabled? -%>
+
+<% attributes.each do |attribute| -%>
+  <%= attribute.type %> :<%= attribute.name %><% *opts, last_opt = attribute.options.to_a %><%= ', ' if last_opt %><% opts.each do |opt| %><%= opt[0] %>: <%= opt[1] %>, <% end %><% if last_opt %><%= last_opt[0] %>: <%= last_opt[1] %><% end %>
+<% end -%>
+end
+<% end -%>

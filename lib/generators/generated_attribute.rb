@@ -15,7 +15,8 @@ module AwsRecord
   class GeneratedAttribute
 
     OPTS = %w(hkey rkey persist_nil db_attr_name ddb_type default_value)
-    attr_reader :name, :type, :options
+    attr_reader :name, :type
+    attr_accessor :options
     @parse_errors = []
 
     class << self

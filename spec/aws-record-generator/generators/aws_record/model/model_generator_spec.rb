@@ -13,12 +13,21 @@
 
 require 'spec_helper'
 
-def generate_and_assert_model(name, *opts)
+def generate_and_assert_model(name, file_name, *opts)
   opts.unshift name
   @gen_helper.run_generator opts
 
-  generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{name}.rb")
-  fixture_file_path = File.expand_path("fixtures/unit/model/#{name}.rb")
+  generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{file_name}.rb")
+  fixture_file_path = File.expand_path("fixtures/unit/model/#{file_name}.rb")
+  @gen_helper.assert_file(generated_file_path, fixture_file_path)
+end
+
+def generate_and_assert_table_config(name, file_name, *opts)
+  opts.unshift name
+  @gen_helper.run_generator opts
+
+  generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{file_name}_config.rb")
+  fixture_file_path = File.expand_path("fixtures/unit/table_config/#{file_name}_config.rb")
   @gen_helper.assert_file(generated_file_path, fixture_file_path)
 end
 
@@ -35,47 +44,77 @@ module AwsRecord
 
     context 'it properly generates basic models' do
       it 'properly creates a model with one field' do
-        generate_and_assert_model 'TestModel1', "uuid:hkey"
+        generate_and_assert_model 'TestModel1', "test_model1", "uuid:hkey"
       end
 
       context 'it creates an hkey when one is not provided' do
         it 'creates a uuid hkey when no fields are provided' do
-          generate_and_assert_model 'TestModel2'
+          generate_and_assert_model 'TestModel2', "test_model2"
         end
 
         it 'creates a uuid hkey when fields are provided but an hkey is not' do
-          generate_and_assert_model "TestModel3", "name"
+          generate_and_assert_model "TestModel3", "test_model3", "name"
         end
 
         it 'adds an hkey option to the uuid attribute if it is present, but no other field is an hkey' do
-          generate_and_assert_model "TestModel4", "uuid"
+          generate_and_assert_model "TestModel4", "test_model4", "uuid"
         end
       end
 
       it 'allows the user to disable mutation tracking' do
-        generate_and_assert_model "TestModel5", "uuid:hkey", "--disable-mutation-tracking"
+        generate_and_assert_model "TestModel5", "test_model5", "uuid:hkey", "--disable-mutation-tracking"
       end
 
       it 'allows the user to generate models with multiple fields and options' do
-        generate_and_assert_model "TestModel6", "forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:d_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false}"
+        generate_and_assert_model "TestModel6", "test_model6", "forum_uuid:hkey", "post_id:rkey", "author_username", "post_title", "post_body", "tags:sset:default_value{Set.new}", "created_at:datetime:db_attr_name{PostCreatedAtTime}", "moderation:boolean:default_value{false}"
       end
 
       it 'enforces the uniqueness of field names' do
         expect {
-          @gen_helper.run_generator ["TestModel_Err", "uuid:hkey uuid"]
+          @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "uuid"]
         }.to raise_error(ArgumentError)
 
-        @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/TestModel_Err.rb"))
+        @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
       end
 
       it 'enforces the uniqueness of field db_attribute_name across fields' do
         expect {
-          @gen_helper.run_generator ["TestModel_Err", "uuid:hkey long_title:db_attr_name{uuid}"]
+          @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "long_title:db_attr_name{uuid}"]
         }.to raise_error(ArgumentError)
 
-        @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/TestModel_Err.rb"))
+        @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+      end
+
+      it 'raises an ArgumentError if any of the fields have errors' do
+        expect {
+          @gen_helper.run_generator ["TestModel_Err", "uuid:invalid_type:hkey", "uuid:hkey,invalid_opt", "uuid:string:hkey,rkey", "uuid:map:hkey"]
+        }.to raise_error(ArgumentError)
+
+        expect(GeneratedAttribute.parse_errors.length).to eq(4)
+        GeneratedAttribute.parse_errors.clear
       end
 
     end
+
+    context 'it creates the table config migrate task' do
+      it 'creates the rake task' do
+        @gen_helper.run_generator ["TestRakeTask", "uuid:hkey"]
+      
+        generated_file_path = File.join(@gen_helper.destination_root, "lib/tasks/table_config_migrate_task.rake")
+        fixture_file_path = File.expand_path("fixtures/unit/table_config_migrate_task.rake")
+        @gen_helper.assert_file(generated_file_path, fixture_file_path)
+      end
+    end
+
+    context 'properly generated table configs based on input' do
+      it 'properly generates the table config file with default values when none are provided' do
+        generate_and_assert_table_config "TableConfigTestModel1", "table_config_test_model1", "uuid:hkey"
+      end
+
+      it 'properly generates the table_config when primary r/w units are provided' do
+        generate_and_assert_table_config "TableConfigTestModel2", "table_config_test_model2", "--table-config=read:20", "write:10"
+      end
+    end
+
   end
 end

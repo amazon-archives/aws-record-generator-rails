@@ -22,8 +22,9 @@ After("@modelgen") do
   @gen_helper.cleanup
 end
 
-Given(/^we will create an aws-record model called: (.+)$/) do |string|
-   @table_name = string
+Given(/^we will create an aws-record model called: (.+), with file prefix: (.+)$/) do |name, file_prefix|
+  @table_name = name
+  @file_prefix = file_prefix
 end
 
 When("we run the rails command line with:") do |cmd|
@@ -32,18 +33,18 @@ end
 
 Then("a {string} should be generated") do |generated_type|
   if generated_type == "model"
-    generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{@table_name}.rb")
-    fixture_file_path = File.expand_path("fixtures/model/#{@table_name}.rb")
+    generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{@file_prefix}.rb")
+    fixture_file_path = File.expand_path("fixtures/cucumber/model/#{@file_prefix}.rb")
     @gen_helper.assert_file(generated_file_path, fixture_file_path)
 
-    require "#{file_path}"
+    require "#{generated_file_path}"
     @model = Object.const_get("#{@table_name}")
   elsif generated_type == "table_config"
-    generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{@table_name}_config.rb")
-    fixture_file_path = File.expand_path("fixtures/table_config/#{@table_name}.rb")
+    generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{@file_prefix}_config.rb")
+    fixture_file_path = File.expand_path("fixtures/cucumber/table_config/#{@file_prefix}_config.rb")
     @gen_helper.assert_file(generated_file_path, fixture_file_path)
     
-    load file_path
+    load generated_file_path
     @table_config = ModelTableConfig.config
   end
 end
