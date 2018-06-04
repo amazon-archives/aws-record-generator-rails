@@ -5,6 +5,9 @@ namespace :aws_record do
     Dir[File.join('db', 'table_config', '*.rb')].each do |filename|
       puts "running #{filename}"
       load(filename)
+
+      table_config = ModelTableConfig.config
+      table_config.migrate! unless table_config.compatible?
     end
   end
 end
