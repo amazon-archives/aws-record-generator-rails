@@ -67,7 +67,7 @@ Which results in the following files being generated:
 
 require 'aws-record'
 
-class TestModel6
+class Forum
   include Aws::Record
 
   string_attr :forum_uuid, hash_key: true
