@@ -19,7 +19,8 @@ module AwsRecord
 
     class << self
       def parse(key_definition)
-        name, *index_options = key_definition.split(':')
+        name, index_options = key_definition.split(':')
+        index_options = index_options.split(',') if index_options
         opts = parse_raw_options(index_options)
 
         new(name, opts)
@@ -27,6 +28,7 @@ module AwsRecord
 
       private
         def parse_raw_options(raw_opts)
+          raw_opts = [] if not raw_opts
           raw_opts.map { |opt| get_option_value(opt) }.to_h
         end
 

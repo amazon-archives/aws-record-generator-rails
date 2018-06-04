@@ -18,7 +18,7 @@ module AwsRecord
 
     context 'when given correct params' do
       it 'sets its properties correctly' do
-        params = "Model:hkey{uuid}:rkey{title}"
+        params = "Model:hkey{uuid},rkey{title}"
       
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
@@ -27,7 +27,7 @@ module AwsRecord
       end
 
       it 'sets its properties correctly independent of input order' do
-        params = "Model:proj_type{ALL}:hkey{uuid}"
+        params = "Model:proj_type{ALL},hkey{uuid}"
 
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
@@ -66,28 +66,28 @@ module AwsRecord
 
     context 'when using a projection' do
       it 'correctly handles an ALL projection type' do
-        params = "Model:hkey{uuid}:proj_type{ALL}"
+        params = "Model:hkey{uuid},proj_type{ALL}"
       
         idx = SecondaryIndex.parse(params)
         expect(idx.projection_type).to eq(:ALL)
       end
 
       it 'correctly handles an KEYS_ONLY projection type' do
-        params = "Model:hkey{uuid}:proj_type{KEYS_ONLY}"
+        params = "Model:hkey{uuid},proj_type{KEYS_ONLY}"
       
         idx = SecondaryIndex.parse(params)
         expect(idx.projection_type).to eq(:KEYS_ONLY)
       end
 
       it 'correctly handles an INCLUDE projection type' do
-        params = "Model:hkey{uuid}:proj_type{INCLUDE}"
+        params = "Model:hkey{uuid},proj_type{INCLUDE}"
       
         idx = SecondaryIndex.parse(params)
         expect(idx.projection_type).to eq(:INCLUDE)
       end
 
       it 'handles invalid projection type types' do
-        params = "Model:hkey{uuid}:proj_type{INCLUDES}"
+        params = "Model:hkey{uuid},proj_type{INCLUDES}"
       
         expect {
           idx = SecondaryIndex.parse(params)
