@@ -4,8 +4,8 @@ Allows the generation of aws-record models using a Rails generator
 
 ## Links of Interest
 
-* [aws-record Documentation](https://docs.aws.amazon.com/awssdkrubyrecord/api/)
-* [DynamoDB Developers Guide](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html)
+* aws-record Documentation(https://docs.aws.amazon.com/awssdkrubyrecord/api/)
+* DynamoDB Developers Guide(https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html)
 
 ## Installation
 
@@ -23,22 +23,22 @@ which will result in aws_record being invoked when you call `rails g model ...`
 
 The syntax for creating an aws-record model follows:
 
-`rails g aws_record:model [field_name:type:opts...] [--disable_mutation_tracking] [--table-config=read:NUM_READ write:NUM_WRITE]`
+`rails g aws_record:model field_name:type:opts... --disable_mutation_tracking --table-config=read:NUM_READ write:NUM_WRITE`
 
 The possible field types are:
 
 Field Name | aws-record attribute type
 ---------------- | -------------
-`[bool | boolean]` | :boolean_attr
-`[date]` | :date_attr
-`[datetime]` | :datetime_attr
-`[float]` | :float_attr
-`[int | integer]` | :integer_attr
-`[list]` | :list_attr
-`[map]` | :map_attr
-`[num_set | numeric_set | nset]` | :numeric_set_attr
-`[string_set | s_set | sset]` | :string_set_attr
-`[string]` | :string_attr
+`bool \| boolean` | :boolean_attr
+`date` | :date_attr
+`datetime` | :datetime_attr
+`float` | :float_attr
+`int \| integer` | :integer_attr
+`list` | :list_attr
+`map` | :map_attr
+`num_set \| numeric_set \| nset` | :numeric_set_attr
+`string_set \| s_set \| sset` | :string_set_attr
+`string` | :string_attr
 
 
 If a type is not provided `aws-record-generator` will assume the field is of type `:string_attr`
@@ -51,10 +51,10 @@ Option Name | aws-record option
 `rkey` | marks an attribute as a range_key
 `persist_nil` | will persist nil values in a attribute
 `db_attr_name{NAME}` | sets a secondary name for an attribute, these must be unique across attribute names
-`ddb_type{S|N|B|BOOL|SS|NS|BS|M|L}` | sets the dynamo_db_type for an attribute
+`ddb_type{S\|N\|B\|BOOL\|SS\|NS\|BS\|M\|L}` | sets the dynamo_db_type for an attribute
 `default_value{Object}` | sets the default value for an attribute
 
-The standard rules apply for using options in a model. Additional reading can be found [here](#links-of-interest)
+The standard rules apply for using options in a model. Additional reading can be found here(#links-of-interest)
 
 An example invocation is:
 `rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false}`
