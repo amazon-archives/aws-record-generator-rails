@@ -66,7 +66,6 @@ module AwsRecord
           return :default_value, $1
         else
           raise ArgumentError.new("You provided an invalid option for #{name}: #{opt}")
-          return :error_opt, true
         end
       end
 
@@ -95,7 +94,6 @@ module AwsRecord
           :string_attr
         else
           raise ArgumentError.new("Invalid type for #{name}: #{type}")
-          :error_attr
         end
       end
     end
