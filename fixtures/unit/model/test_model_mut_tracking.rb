@@ -1,7 +1,8 @@
 require 'aws-record'
 
-class TestModel2
+class TestModelMutTracking
   include Aws::Record
+  disable_mutation_tracking
 
   string_attr :uuid, hash_key: true
 end

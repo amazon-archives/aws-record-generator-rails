@@ -44,29 +44,29 @@ module AwsRecord
 
     context 'it properly generates basic models' do
       it 'properly creates a model with one field' do
-        generate_and_assert_model 'TestModel1', "test_model1", "uuid:hkey"
+        generate_and_assert_model 'TestModelBasic', "test_model_basic", "uuid:hkey"
       end
 
       context 'it creates an hkey when one is not provided' do
         it 'creates a uuid hkey when no fields are provided' do
-          generate_and_assert_model 'TestModel2', "test_model2"
+          generate_and_assert_model 'TestModelFieldsAbsentAutoUuid', "test_model_fields_absent_auto_uuid"
         end
 
         it 'creates a uuid hkey when fields are provided but an hkey is not' do
-          generate_and_assert_model "TestModel3", "test_model3", "name"
+          generate_and_assert_model "TestModelFieldsPresentAutoUuid", "test_model_fields_present_auto_uuid", "name"
         end
 
         it 'adds an hkey option to the uuid attribute if it is present, but no other field is an hkey' do
-          generate_and_assert_model "TestModel4", "test_model4", "uuid"
+          generate_and_assert_model "TestModelAutoHkey", "test_model_auto_hkey", "uuid"
         end
       end
 
       it 'allows the user to disable mutation tracking' do
-        generate_and_assert_model "TestModel5", "test_model5", "uuid:hkey", "--disable-mutation-tracking"
+        generate_and_assert_model "TestModelMutTracking", "test_model_mut_tracking", "uuid:hkey", "--disable-mutation-tracking"
       end
 
       it 'allows the user to generate models with multiple fields and options' do
-        generate_and_assert_model "TestModel6", "test_model6", "forum_uuid:hkey", "post_id:rkey", "author_username", "post_title", "post_body", "tags:sset:default_value{Set.new}", "created_at:datetime:db_attr_name{PostCreatedAtTime}", "moderation:boolean:default_value{false}"
+        generate_and_assert_model "TestModelComplex", "test_model_complex", "forum_uuid:hkey", "post_id:rkey", "author_username", "post_title", "post_body", "tags:sset:default_value{Set.new}", "created_at:datetime:db_attr_name{PostCreatedAtTime}", "moderation:boolean:default_value{false}"
       end
 
       it 'enforces the uniqueness of field names' do
@@ -105,11 +105,11 @@ module AwsRecord
 
     context 'properly generated table configs based on input' do
       it 'properly generates the table config file with default values when none are provided' do
-        generate_and_assert_table_config "TableConfigTestModel1", "table_config_test_model1", "uuid:hkey"
+        generate_and_assert_table_config "TableConfigTestModelDefaultUnits", "table_config_test_model_default_units", "uuid:hkey"
       end
 
       it 'properly generates the table_config when primary r/w units are provided' do
-        generate_and_assert_table_config "TableConfigTestModel2", "table_config_test_model2", "--table-config=read:20", "write:10"
+        generate_and_assert_table_config "TableConfigTestModelDeclaredUnits", "table_config_test_model_declared_units", "--table-config=read:20", "write:10"
       end
     end
 

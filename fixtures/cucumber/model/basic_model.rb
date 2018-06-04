@@ -1,6 +1,6 @@
 require 'aws-record'
 
-class TestModel1
+class BasicModel
   include Aws::Record
 
   string_attr :id, hash_key: true

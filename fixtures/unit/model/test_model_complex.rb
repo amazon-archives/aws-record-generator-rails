@@ -1,6 +1,6 @@
 require 'aws-record'
 
-class TestModel6
+class TestModelComplex
   include Aws::Record
 
   string_attr :forum_uuid, hash_key: true

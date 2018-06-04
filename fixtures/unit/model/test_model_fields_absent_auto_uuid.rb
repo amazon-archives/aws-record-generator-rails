@@ -1,6 +1,6 @@
 require 'aws-record'
 
-class TestModel1
+class TestModelFieldsAbsentAutoUuid
   include Aws::Record
 
   string_attr :uuid, hash_key: true

@@ -16,10 +16,10 @@
 Feature: Aws::Record::Generators::ModelGenerator
 
 Scenario: Create a New Table with ModelGenerator
-  Given we will create an aws-record model called: TestModel1, with file prefix: test_model1
+  Given we will create an aws-record model called: BasicModel, with file prefix: basic_model
   When we run the rails command line with:
     """
-    g aws_record:model TestModel1 id:hkey count:int:rkey --table_config read:11 write:4
+    g aws_record:model BasicModel id:hkey count:int:rkey --table_config read:11 write:4
     """
   Then a "model" should be generated
   And a "table_config" should be generated

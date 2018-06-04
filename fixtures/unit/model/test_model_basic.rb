@@ -1,8 +1,7 @@
 require 'aws-record'
 
-class TestModel3
+class TestModelBasic
   include Aws::Record
 
   string_attr :uuid, hash_key: true
-  string_attr :name
 end

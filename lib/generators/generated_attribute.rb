@@ -26,7 +26,7 @@ module AwsRecord
         type, opts = "string", type if OPTS.any? { |opt| type.include? opt }
         
         opts = opts.split(',') if opts
-        type, opts = *parse_type_and_options(name, type, opts)
+        type, opts = parse_type_and_options(name, type, opts)
         validate_opt_combs(name, type, opts)
 
         new(name, type, opts)
