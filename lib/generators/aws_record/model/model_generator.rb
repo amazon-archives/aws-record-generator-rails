@@ -24,7 +24,7 @@ module AwsRecord
     check_class_collision
 
     class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
-    class_option :table_config, type: :hash, default: {}, banner: "--table-config read:NUM_READ, write:NUM_WRITE"
+    class_option :table_config, type: :hash, default: {}, banner: "--table-config=read:NUM_READ write:NUM_WRITE"
 
     attr_accessor :primary_read_units, :primary_write_units
 
