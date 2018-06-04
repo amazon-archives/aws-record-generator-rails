@@ -17,11 +17,8 @@ module AwsRecord
     OPTS = %w(hkey rkey persist_nil db_attr_name ddb_type default_value)
     attr_reader :name, :type
     attr_accessor :options
-    @parse_errors = []
 
     class << self
-
-      attr_accessor :parse_errors
 
       def parse(field_definition)
         name, type, opts = field_definition.split(':')
@@ -42,8 +39,8 @@ module AwsRecord
             is_hkey = opts.key?(:hash_key)
             is_rkey = opts.key?(:range_key)
 
-            @parse_errors << ArgumentError.new("Field #{name} cannot be a range key and hash key simultaneously") if is_hkey && is_rkey
-            @parse_errors << ArgumentError.new("Field #{name} cannot be a hash key and map_attr simultaneously") if type == :map_attr and is_hkey
+            raise ArgumentError.new("Field #{name} cannot be a range key and hash key simultaneously") if is_hkey && is_rkey
+            raise ArgumentError.new("Field #{name} cannot be a hash key and map_attr simultaneously") if type == :map_attr and is_hkey
         end
       end
       
@@ -68,7 +65,7 @@ module AwsRecord
         when /default_value\{(.+)\}/
           return :default_value, $1
         else
-          @parse_errors << ArgumentError.new("You provided an invalid option for #{name}: #{opt}")
+          raise ArgumentError.new("You provided an invalid option for #{name}: #{opt}")
           return :error_opt, true
         end
       end
@@ -97,7 +94,7 @@ module AwsRecord
         when "string"
           :string_attr
         else
-          @parse_errors << ArgumentError.new("Invalid type for #{name}: #{type}")
+          raise ArgumentError.new("Invalid type for #{name}: #{type}")
           :error_attr
         end
       end

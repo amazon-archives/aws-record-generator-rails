@@ -89,9 +89,6 @@ module AwsRecord
         expect {
           @gen_helper.run_generator ["TestModel_Err", "uuid:invalid_type:hkey", "uuid:hkey,invalid_opt", "uuid:string:hkey,rkey", "uuid:map:hkey"]
         }.to raise_error(ArgumentError)
-
-        expect(GeneratedAttribute.parse_errors.length).to eq(4)
-        GeneratedAttribute.parse_errors.clear
       end
 
     end

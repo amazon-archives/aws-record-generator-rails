@@ -51,13 +51,20 @@ module AwsRecord
     end
 
     def parse_attributes!
+
+      parse_errors = []
+
       self.attributes = (attributes || []).map do |attr|
-        GeneratedAttribute.parse(attr)
+        begin
+          GeneratedAttribute.parse(attr)
+        rescue ArgumentError => e
+          parse_errors << e
+        end
       end
 
-      if !GeneratedAttribute.parse_errors.empty?
+      if !parse_errors.empty?
         puts "The following errors were encountered while trying to parse the given attributes"
-        puts GeneratedAttribute.parse_errors
+        puts parse_errors
 
         raise ArgumentError.new("Please fix the attribute errors before proceeding.")
       end
