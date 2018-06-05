@@ -13,7 +13,7 @@ Allows the generation of aws-record models using a Rails generator
 
 You can either invoke the generator by calling `rails g aws_record:model ...` or you can configure `aws-record-generator` to be your project's default orm in `config/application.rb` by:
 
-```
+```ruby
 config.generators do |g|
   g.orm             :aws_record
 end
