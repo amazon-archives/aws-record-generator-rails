@@ -31,7 +31,7 @@ When("we run the rails command line with:") do |cmd|
   @gen_helper.run_in_test_app cmd
 end
 
-Then("a {string} should be generated at: {string}") do |generated_type, fixture_file_path|
+Then("a {string} should be generated matching fixture at: {string}") do |generated_type, fixture_file_path|
   file_name = fixture_file_path.split('/')[-1]
   file_prefix = file_name.split('.')[0]
 

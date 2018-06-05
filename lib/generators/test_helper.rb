@@ -57,7 +57,7 @@ module AwsRecord
     end
 
     def cleanup
-      # rm_rf @temp_root
+      rm_rf @temp_root
     end
 
     private
