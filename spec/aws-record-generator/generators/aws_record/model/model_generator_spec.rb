@@ -109,7 +109,63 @@ module AwsRecord
       end
 
       it 'properly generates the table_config when primary r/w units are provided' do
-        generate_and_assert_table_config "TableConfigTestModel2", "table_config_test_model2", "--table-config=read:20", "write:10"
+        generate_and_assert_table_config "TableConfigTestModel2", "table_config_test_model2", "--table-config=primary:20-10"
+      end
+    end
+
+    context 'it properly handles generating secondary indexes' do
+      context 'gsis are properly inserted into models' do
+        it 'generates a gsi with only rkey' do
+          generate_and_assert_model "TestModelGSIBasic", "test_model_gsi_basic", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}"
+        end
+
+        it 'generates a gsi with rkey and hkey' do
+          generate_and_assert_model "TestModelGSIKeys", "test_model_gsi_keys", "gsi_hkey", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}"
+        end
+
+        it 'generates a gsi with rkey, hkey and projection type' do 
+          generate_and_assert_model "TestModelGSIKeysProj", "test_model_gsi_keys_proj", "gsi_hkey", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey},proj_type{ALL}"
+        end
+
+        it 'generates a model with multiple gsis' do 
+          generate_and_assert_model "TestModelGSIMult", "test_model_gsi_mult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}"
+        end
+
+        it 'enforces that a given hkey is a valid field in the model' do
+          expect {
+            @gen_helper.run_generator ["TestModel_Err", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}"]
+          }.to raise_error(ArgumentError)
+
+          @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+        end
+
+        it 'enforces that a given rkey is a valid field in the model' do
+          expect {
+            @gen_helper.run_generator ["TestModel_Err", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}"]
+          }.to raise_error(ArgumentError)
+
+          @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+        end
+      end
+
+      context 'gsis are properly added into table_configs' do
+        it 'when no r/w unit info is provided default r/w units are used' do
+          generate_and_assert_table_config "TestTableConfigGSIBasic", "test_table_config_gsi_basic", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}"
+        end
+
+        it 'the user can provide r/w values for a table config' do
+          generate_and_assert_table_config "TestTableConfigGSIProvided", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=SecondaryIndex:50..100"
+        end
+
+        it 'generates a table_config with multiple gsis' do 
+          generate_and_assert_table_config "TestTable_ConfigGSIMult", "test_table_config_gsi_mult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}"
+        end
+
+        it 'errors out when the user provides r/w values for a secondary index that does not exist' do
+          expect {
+            generate_and_assert_table_config "TestModel_Err", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=SecondaryIndexes:50..100"
+          }.to raise_error(ArgumentError)
+        end
       end
     end
 

@@ -24,9 +24,10 @@ module AwsRecord
     check_class_collision
 
     class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
-    class_option :table_config, type: :hash, default: {}, banner: "--table-config=read:NUM_READ write:NUM_WRITE"
+    class_option :table_config, type: :hash, default: {}, banner: "--table-config=[primary:READ..WRITE] [gsi1:READ..WRITE]..."
+    class_option :gsi, type: :array, default: [], banner: "--gsi=name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]..."
 
-    attr_accessor :primary_read_units, :primary_write_units
+    attr_accessor :primary_read_units, :primary_write_units, :gsi_rw_units, :gsis
 
     def create_model
       template "model.rb", File.join("app/models", class_path, "#{file_name}.rb")
@@ -46,28 +47,30 @@ module AwsRecord
     private
 
     def initialize(args, *options)
+      @parse_errors = []
       super
+      parse_gsis!
       parse_table_config!
+
+      if !@parse_errors.empty?
+        puts "The following errors were encountered while trying to parse the given attributes"
+        puts @parse_errors
+
+        raise ArgumentError.new("Please fix the errors before proceeding.")
+      end
     end
 
     def parse_attributes!
-
-      parse_errors = []
 
       self.attributes = (attributes || []).map do |attr|
         begin
           GeneratedAttribute.parse(attr)
         rescue ArgumentError => e
-          parse_errors << e
+          @parse_errors << e
+          next
         end
       end
-
-      if !parse_errors.empty?
-        puts "The following errors were encountered while trying to parse the given attributes"
-        puts parse_errors
-
-        raise ArgumentError.new("Please fix the attribute errors before proceeding.")
-      end
+      self.attributes = self.attributes.compact
 
       ensure_hkey
       ensure_unique_fields
@@ -128,17 +131,61 @@ module AwsRecord
     end
 
     def parse_table_config!
-      if !options['table_config'].key? 'read'
-        @primary_read_units = DEFAULT_READ_UNITS
-      else
-        @primary_read_units = options['table_config']['read']
-      end
+      @primary_read_units, @primary_write_units = parse_rw_units("primary")
 
-      if !options['table_config'].key? 'write'
-        @primary_write_units = DEFAULT_WRITE_UNITS
-      else
-        @primary_write_units = options['table_config']['write']
+      @gsi_rw_units = @gsis.map { |idx|
+        [idx.name, parse_rw_units(idx.name)]
+      }.to_h
+
+      options['table_config'].each do |config, rw_units|
+        if config == "primary"
+          next
+        else
+          gsi = @gsis.select { |idx| idx.name == config}
+
+          if gsi.empty?
+            @parse_errors << ArgumentError.new("Could not find a gsi declaration for #{config}")
+          end
+        end
       end
+    end
+
+    def parse_rw_units(name)
+      if !options['table_config'].key? name
+        return DEFAULT_READ_UNITS, DEFAULT_WRITE_UNITS
+      else
+        rw_units = options['table_config'][name]
+        return rw_units.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
+      end
+    end
+
+    def parse_gsis!
+      @gsis = (options['gsi'] || []).map do |raw_idx|
+        begin
+          idx = SecondaryIndex.parse(raw_idx)
+
+          attributes = self.attributes.select { |attr| attr.name == idx.hash_key}
+          if attributes.empty?
+            @parse_errors << ArgumentError.new("Could not find attribute #{idx.hash_key} for gsi #{idx.name} hkey")
+            next
+          end
+
+          if idx.range_key
+            attributes = self.attributes.select { |attr| attr.name == idx.range_key}
+            if attributes.empty?
+              @parse_errors << ArgumentError.new("Could not find attribute #{idx.range_key} for gsi #{idx.name} rkey")
+              next
+            end
+          end
+
+          idx
+        rescue ArgumentError => e
+          @parse_errors << e
+          next
+        end
+      end
+      
+      @gsis = @gsis.compact
     end
   end
 end

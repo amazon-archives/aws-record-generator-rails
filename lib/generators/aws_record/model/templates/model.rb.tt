@@ -9,5 +9,16 @@ class <%= class_name %>
 <% attributes.each do |attribute| -%>
   <%= attribute.type %> :<%= attribute.name %><% *opts, last_opt = attribute.options.to_a %><%= ', ' if last_opt %><% opts.each do |opt| %><%= opt[0] %>: <%= opt[1] %>, <% end %><% if last_opt %><%= last_opt[0] %>: <%= last_opt[1] %><% end %>
 <% end -%>
+<% gsis.each do |index| %>
+  global_secondary_index(
+    :<%= index.name %>,
+    hash_key: :<%= index.hash_key -%><%= ',' if index.range_key || index.projection_type -%>
+<%= '
+    range_key: :' if index.range_key %><% if index.range_key %><%= index.range_key %><% end -%><%= ',' if index.projection_type -%>
+<%= '
+    projection_type: ' if index.projection_type %><% if index.projection_type %><%= index.projection_type %><% end -%>
+
+  )
+<% end -%>
 end
 <% end -%>

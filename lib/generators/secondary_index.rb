@@ -14,7 +14,7 @@
 module AwsRecord
   class SecondaryIndex
 
-    PROJ_TYPES = %i(ALL KEYS_ONLY INCLUDE)
+    PROJ_TYPES = %w(ALL KEYS_ONLY INCLUDE)
     attr_reader :name, :hash_key, :range_key, :projection_type
 
     class << self
@@ -36,11 +36,11 @@ module AwsRecord
           case raw_option
 
           when /hkey\{(\w+)\}/
-            return :hash_key, $1.to_sym
+            return :hash_key, $1
           when /rkey\{(\w+)\}/
-            return :range_key, $1.to_sym
+            return :range_key, $1
           when /proj_type\{(\w+)\}/
-            return :projection_type, $1.to_sym
+            return :projection_type, $1
           else
             raise ArgumentError.new("Invalid option for secondary index #{raw_option}")
           end
@@ -55,10 +55,14 @@ module AwsRecord
         raise ArgumentError.new("Invalid projection type #{opts[:projection_type]}") if not PROJ_TYPES.include? opts[:projection_type]
       end
 
+      if opts[:hash_key] == opts[:range_key]
+        raise ArgumentError.new("#{opts[:hash_key]} cannot be both the rkey and hkey for gsi #{name}")
+      end
+
       @name = name
       @hash_key = opts[:hash_key]
       @range_key = opts[:range_key]
-      @projection_type = opts[:projection_type]
+      @projection_type = '"' + "#{opts[:projection_type]}" + '"' if opts[:projection_type]
     end
   end
 end

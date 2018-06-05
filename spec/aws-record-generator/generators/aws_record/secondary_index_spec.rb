@@ -22,8 +22,9 @@ module AwsRecord
       
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
-        expect(idx.hash_key).to eq(:uuid)
-        expect(idx.range_key).to eq(:title)
+        expect(idx.hash_key).to eq("uuid")
+        expect(idx.range_key).to eq("title")
+        expect(idx.projection_type).to eq(nil)
       end
 
       it 'sets its properties correctly independent of input order' do
@@ -31,9 +32,9 @@ module AwsRecord
 
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
-        expect(idx.hash_key).to eq(:uuid)
+        expect(idx.hash_key).to eq("uuid")
         expect(idx.range_key).to eq(nil)
-        expect(idx.projection_type).to eq(:ALL)
+        expect(idx.projection_type).to eq('"ALL"')
       end
 
       it 'correctly handles underscores in field names' do 
@@ -41,7 +42,7 @@ module AwsRecord
 
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
-        expect(idx.hash_key).to eq(:long_uuid)
+        expect(idx.hash_key).to eq("long_uuid")
       end
     end
 
@@ -69,21 +70,21 @@ module AwsRecord
         params = "Model:hkey{uuid},proj_type{ALL}"
       
         idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq(:ALL)
+        expect(idx.projection_type).to eq('"ALL"')
       end
 
       it 'correctly handles an KEYS_ONLY projection type' do
         params = "Model:hkey{uuid},proj_type{KEYS_ONLY}"
       
         idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq(:KEYS_ONLY)
+        expect(idx.projection_type).to eq('"KEYS_ONLY"')
       end
 
       it 'correctly handles an INCLUDE projection type' do
         params = "Model:hkey{uuid},proj_type{INCLUDE}"
       
         idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq(:INCLUDE)
+        expect(idx.projection_type).to eq('"INCLUDE"')
       end
 
       it 'handles invalid projection type types' do
