@@ -49,7 +49,7 @@ module AwsRecord
 
       context 'it creates an hkey when one is not provided' do
         it 'creates a uuid hkey when no fields are provided' do
-          generate_and_assert_model 'TestModelAutoHkey', "test_model_auto_hkey", "--table-config=primary:5-2"
+          generate_and_assert_model 'TestModelFieldsAbsentAutoUuid', "test_model_fields_absent_auto_uuid", "--table-config=primary:5-2"
         end
 
         it 'creates a uuid hkey when fields are provided but an hkey is not' do
@@ -57,7 +57,7 @@ module AwsRecord
         end
 
         it 'adds an hkey option to the uuid attribute if it is present, but no other field is an hkey' do
-          generate_and_assert_model "TestModelFieldsAbsentAutoUuid", "test_model_fields_absent_auto_uuid", "uuid", "--table-config=primary:5-2"
+          generate_and_assert_model "TestModelAutoHkey", "test_model_auto_hkey", "uuid", "--table-config=primary:5-2"
         end
       end
 
