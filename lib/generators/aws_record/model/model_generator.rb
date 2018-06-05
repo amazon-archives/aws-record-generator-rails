@@ -16,8 +16,6 @@ require 'aws-record-generator'
 
 module AwsRecord
   class ModelGenerator < Rails::Generators::NamedBase
-    DEFAULT_READ_UNITS = 5
-    DEFAULT_WRITE_UNITS = 2
 
     source_root File.expand_path('../templates', __FILE__)
     argument :attributes, type: :array, default: [], banner: "field[:type][:opts] field[:type][:opts]..."
@@ -48,7 +46,10 @@ module AwsRecord
 
     def initialize(args, *options)
       @parse_errors = []
+      
       super
+      ensure_unique_fields
+      ensure_hkey
       parse_gsis!
       parse_table_config!
 
@@ -71,9 +72,6 @@ module AwsRecord
         end
       end
       self.attributes = self.attributes.compact
-
-      ensure_hkey
-      ensure_unique_fields
     end
 
     def ensure_unique_fields
@@ -100,18 +98,31 @@ module AwsRecord
 
       if !duplicate_fields.empty?
         duplicate_fields.each do |invalid_attr|
-          puts "Found duplicated name: #{invalid_attr[1]}, in #{invalid_attr[0]}"
+          @parse_errors << ArgumentError.new("Found duplicated field name: #{invalid_attr[1]}, in attribute#{invalid_attr[0]}")
         end
-
-        raise ArgumentError.new("Please remove duplicated names before proceeding")
       end
     end
 
     def ensure_hkey
       uuid_member = nil
+      hkey_member = nil
+      rkey_member = nil
+
       self.attributes.each do |attr|
         if attr.options.key? :hash_key
-          return
+          if hkey_member
+            @parse_errors << ArgumentError.new("Redefinition of hash_key attr: #{attr.name}, original declaration of hash_key on: #{hkey_member.name}")
+            next
+          end
+
+          hkey_member = attr
+        elsif attr.options.key? :range_key
+          if rkey_member
+            @parse_errors << ArgumentError.new("Redefinition of range_key attr: #{attr.name}, original declaration of range_key on: #{hkey_member.name}")
+            next
+          end
+
+          rkey_member = attr
         end
 
         if attr.name.include? "uuid"
@@ -119,10 +130,12 @@ module AwsRecord
         end
       end
 
-      if uuid_member
-        uuid_member.options[:hash_key] = true
-      else
-        self.attributes.unshift GeneratedAttribute.parse("uuid:hkey")
+      if !hkey_member
+        if uuid_member
+          uuid_member.options[:hash_key] = true
+        else
+          self.attributes.unshift GeneratedAttribute.parse("uuid:hkey")
+        end
       end
     end
 
@@ -152,7 +165,7 @@ module AwsRecord
 
     def parse_rw_units(name)
       if !options['table_config'].key? name
-        return DEFAULT_READ_UNITS, DEFAULT_WRITE_UNITS
+        @parse_errors << ArgumentError.new("Please provide a table_config definition for #{name}")
       else
         rw_units = options['table_config'][name]
         return rw_units.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
