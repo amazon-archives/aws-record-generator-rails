@@ -22,6 +22,7 @@ module AwsRecord
     check_class_collision
 
     class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
+    class_option :timestamps, type: :boolean, banner: "--timestamps"
     class_option :table_config, type: :hash, default: {}, banner: "--table-config=[primary:READ..WRITE] [gsi1:READ..WRITE]..."
     class_option :gsi, type: :array, default: [], banner: "--gsi=name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]..."
 
@@ -72,6 +73,11 @@ module AwsRecord
         end
       end
       self.attributes = self.attributes.compact
+
+      if options['timestamps']
+        self.attributes << GeneratedAttribute.parse("created:datetime:default_value{Time.now}")
+        self.attributes << GeneratedAttribute.parse("updated:datetime:default_value{Time.now}")
+      end
     end
 
     def ensure_unique_fields

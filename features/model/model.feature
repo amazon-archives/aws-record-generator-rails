@@ -16,13 +16,12 @@
 Feature: Aws::Record::Generators::ModelGenerator
 
 Scenario: Create a New Table with ModelGenerator
-  Given we will create an aws-record model called: BasicModel, with file prefix: basic_model
   When we run the rails command line with:
     """
-    g aws_record:model BasicModel id:hkey count:int:rkey --table_config primary:11.4
+    g aws_record:model BasicModel id:hkey count:int:rkey --table_config read:11 write:4
     """
-  Then a "model" should be generated
-  And a "table_config" should be generated
+  Then a "model" should be generated matching fixture at: "fixtures/cucumber/model/basic_model.rb"
+  And a "table_config" should be generated matching fixture at: "fixtures/cucumber/table_config/basic_model_config.rb"
   When we run the rails command line with:
     """
     aws_record:migrate
@@ -33,13 +32,12 @@ Scenario: Create a New Table with ModelGenerator
   And the TableConfig should be an exact match with the remote table
 
 Scenario: Create a New Table that has a Global Secondary Index with ModelGenerator
-  Given we will create an aws-record model called: BasicSecondaryIndexModel, with file prefix: basic_secondary_index_model
   When we run the rails command line with:
     """
     g aws_record:model BasicSecondaryIndexModel id:hkey count:int:rkey title --table_config primary:11.4 secondary_idx:10-5 --gsi=secondary_idx:hkey{title}
     """
-  Then a "model" should be generated
-  And a "table_config" should be generated
+  Then a "model" should be generated matching fixture at: "fixtures/cucumber/model/basic_secondary_index_model.rb"
+  And a "table_config" should be generated matching fixture at: "fixtures/cucumber/table_config/basic_secondary_index_model_config.rb"
   When we run the rails command line with:
     """
     aws_record:migrate
