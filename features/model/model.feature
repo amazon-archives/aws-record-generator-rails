@@ -16,13 +16,12 @@
 Feature: Aws::Record::Generators::ModelGenerator
 
 Scenario: Create a New Table with ModelGenerator
-  Given we will create an aws-record model called: TestModel1
   When we run the rails command line with:
     """
-    g aws_record:model TestModel1 id:hkey count:int:rkey --table_config primary:11,4
+    g aws_record:model BasicModel id:hkey count:int:rkey --table_config read:11 write:4
     """
-  Then a "model" should be generated
-  And a "table_config" should be generated
+  Then a "model" should be generated matching fixture at: "fixtures/cucumber/model/basic_model.rb"
+  And a "table_config" should be generated matching fixture at: "fixtures/cucumber/table_config/basic_model_config.rb"
   When we run the rails command line with:
     """
     aws_record:migrate

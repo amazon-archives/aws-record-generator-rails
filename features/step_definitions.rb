@@ -32,7 +32,11 @@ def cleanup_table
 end
   
 Before do
-  @client = Aws::DynamoDB::Client.new(region: "us-east-1")
+  if !ENV.key? "AWS_RECORD_GENERATOR_TEST_REGION"
+    raise NameError.new("Please set your AWS_RECORD_GENERATOR_TEST_REGION")
+  end
+
+  @client = Aws::DynamoDB::Client.new(region: ENV["AWS_RECORD_GENERATOR_TEST_REGION"])
 end
   
 After("@dynamodb") do

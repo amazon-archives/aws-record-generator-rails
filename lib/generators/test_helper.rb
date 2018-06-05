@@ -53,7 +53,7 @@ module AwsRecord
     end
 
     def assert_not_file(file_path)
-      assert !File.exist?(file_path), "Expected file #{relative.inspect} to not exist, but does"
+      assert !File.exist?(file_path), "Expected file #{file_path.inspect} to not exist, but does"
     end
 
     def cleanup
