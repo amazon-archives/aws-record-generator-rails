@@ -113,5 +113,11 @@ module AwsRecord
       end
     end
 
+    context 'it allows users to automatically add timestamps to their model' do
+      it 'creates timestamps when the flag is enabled' do
+        generate_and_assert_model "TestModelTimestamps", "test_model_timestamps", "--timestamps"
+      end
+    end
+
   end
 end

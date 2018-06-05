@@ -24,6 +24,7 @@ module AwsRecord
     check_class_collision
 
     class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
+    class_option :timestamps, type: :boolean, banner: "--timestamps"
     class_option :table_config, type: :hash, default: {}, banner: "--table-config=read:NUM_READ write:NUM_WRITE"
 
     attr_accessor :primary_read_units, :primary_write_units
@@ -60,6 +61,11 @@ module AwsRecord
         rescue ArgumentError => e
           parse_errors << e
         end
+      end
+
+      if options['timestamps']
+        self.attributes << GeneratedAttribute.parse("created:datetime:default_value{Time.now}")
+        self.attributes << GeneratedAttribute.parse("updated:datetime:default_value{Time.now}")
       end
 
       if !parse_errors.empty?
