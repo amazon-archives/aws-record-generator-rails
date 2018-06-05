@@ -44,29 +44,29 @@ module AwsRecord
 
     context 'it properly generates basic models' do
       it 'properly creates a model with one field' do
-        generate_and_assert_model 'TestModel1', "test_model1", "uuid:hkey", "--table-config=primary:5-2"
+        generate_and_assert_model 'TestModelBasic', "test_model_basic", "uuid:hkey", "--table-config=primary:5-2"
       end
 
       context 'it creates an hkey when one is not provided' do
         it 'creates a uuid hkey when no fields are provided' do
-          generate_and_assert_model 'TestModel2', "test_model2", "--table-config=primary:5-2"
+          generate_and_assert_model 'TestModelAutoHkey', "test_model_auto_hkey", "--table-config=primary:5-2"
         end
 
         it 'creates a uuid hkey when fields are provided but an hkey is not' do
-          generate_and_assert_model "TestModel3", "test_model3", "name", "--table-config=primary:5-2"
+          generate_and_assert_model "TestModelFieldsPresentAutoUuid", "test_model_fields_present_auto_uuid", "name", "--table-config=primary:5-2"
         end
 
         it 'adds an hkey option to the uuid attribute if it is present, but no other field is an hkey' do
-          generate_and_assert_model "TestModel4", "test_model4", "uuid", "--table-config=primary:5-2"
+          generate_and_assert_model "TestModelFieldsAbsentAutoUuid", "test_model_fields_absent_auto_uuid", "uuid", "--table-config=primary:5-2"
         end
       end
 
       it 'allows the user to disable mutation tracking' do
-        generate_and_assert_model "TestModel5", "test_model5", "uuid:hkey", "--disable-mutation-tracking", "--table-config=primary:5-2"
+        generate_and_assert_model "TestModelMutTracking", "test_model_mut_tracking", "uuid:hkey", "--disable-mutation-tracking", "--table-config=primary:5-2"
       end
 
       it 'allows the user to generate models with multiple fields and options' do
-        generate_and_assert_model "TestModel6", "test_model6", "forum_uuid:hkey", "post_id:rkey", "author_username", "post_title", "post_body", "tags:sset:default_value{Set.new}", "created_at:datetime:db_attr_name{PostCreatedAtTime}", "moderation:boolean:default_value{false}", "--table-config=primary:5-2"
+        generate_and_assert_model "TestModelComplex", "test_model_complex", "forum_uuid:hkey", "post_id:rkey", "author_username", "post_title", "post_body", "tags:sset:default_value{Set.new}", "created_at:datetime:db_attr_name{PostCreatedAtTime}", "moderation:boolean:default_value{false}", "--table-config=primary:5-2"
       end
 
       it 'enforces the uniqueness of field names' do
