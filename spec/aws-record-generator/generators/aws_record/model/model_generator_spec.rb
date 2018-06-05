@@ -154,16 +154,16 @@ module AwsRecord
         end
 
         it 'the user can provide r/w values for a table config' do
-          generate_and_assert_table_config "TestTableConfigGSIProvided", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5..2", "SecondaryIndex:50-100"
+          generate_and_assert_table_config "TestTableConfigGSIProvided", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2", "SecondaryIndex:50-100"
         end
 
         it 'generates a table_config with multiple gsis' do 
-          generate_and_assert_table_config "TestTable_ConfigGSIMult", "test_table_config_gsi_mult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2", "SecondaryIndex2:5-2"
+          generate_and_assert_table_config "TestTable_ConfigGSIMult", "test_table_config_gsi_mult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}", "--table-config=primary:5-2", "SecondaryIndex:10-11", "SecondaryIndex2:40-20"
         end
 
         it 'errors out when the user provides r/w values for a secondary index that does not exist' do
           expect {
-            generate_and_assert_table_config "TestModel_Err", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2", "SecondaryIndexes:50..100"
+            generate_and_assert_table_config "TestModel_Err", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2", "SecondaryIndexes:50-100"
           }.to raise_error(ArgumentError)
         end
       end
@@ -171,7 +171,7 @@ module AwsRecord
 
     context 'it allows users to automatically add timestamps to their model' do
       it 'creates timestamps when the flag is enabled' do
-        generate_and_assert_model "TestModelTimestamps", "test_model_timestamps", "--timestamps", "--table_config=primary:5..2"
+        generate_and_assert_model "TestModelTimestamps", "test_model_timestamps", "--timestamps", "--table_config=primary:5-2"
       end
     end
 

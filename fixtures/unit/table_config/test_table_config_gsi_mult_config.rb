@@ -9,13 +9,13 @@ module ModelTableConfig
       t.write_capacity_units 2
 
       t.global_secondary_index(:SecondaryIndex) do |i|
-        i.read_capacity_units 5
-        i.write_capacity_units 2
+        i.read_capacity_units 10
+        i.write_capacity_units 11
       end
 
       t.global_secondary_index(:SecondaryIndex2) do |i|
-        i.read_capacity_units 5
-        i.write_capacity_units 2
+        i.read_capacity_units 40
+        i.write_capacity_units 20
       end
     end
   end
