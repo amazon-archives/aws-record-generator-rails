@@ -9,11 +9,17 @@ class TestModelGsiMult
 
   global_secondary_index(
     :SecondaryIndex,
-    hash_key: :gsi_hkey
+    hash_key: :gsi_hkey,
+    projection: {
+      projection_type: "ALL"
+    }
   )
 
   global_secondary_index(
     :SecondaryIndex2,
-    hash_key: :gsi2_hkey
+    hash_key: :gsi2_hkey,
+    projection: {
+      projection_type: "ALL"
+    }
   )
 end

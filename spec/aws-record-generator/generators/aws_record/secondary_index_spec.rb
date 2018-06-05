@@ -24,7 +24,7 @@ module AwsRecord
         expect(idx.name).to eq("Model")
         expect(idx.hash_key).to eq("uuid")
         expect(idx.range_key).to eq("title")
-        expect(idx.projection_type).to eq(nil)
+        expect(idx.projection_type).to eq('"ALL"')
       end
 
       it 'sets its properties correctly independent of input order' do

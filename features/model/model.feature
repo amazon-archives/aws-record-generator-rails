@@ -16,10 +16,27 @@
 Feature: Aws::Record::Generators::ModelGenerator
 
 Scenario: Create a New Table with ModelGenerator
-  Given we will create an aws-record model called: TestModel1, with file prefix: test_model1
+  Given we will create an aws-record model called: BasicModel, with file prefix: basic_model
   When we run the rails command line with:
     """
-    g aws_record:model TestModel1 id:hkey count:int:rkey --table_config read:11 write:4
+    g aws_record:model BasicModel id:hkey count:int:rkey --table_config primary:11.4
+    """
+  Then a "model" should be generated
+  And a "table_config" should be generated
+  When we run the rails command line with:
+    """
+    aws_record:migrate
+    """
+
+  Then eventually the table should exist in DynamoDB
+  And the TableConfig should be compatible with the remote table
+  And the TableConfig should be an exact match with the remote table
+
+Scenario: Create a New Table that has a Global Secondary Index with ModelGenerator
+  Given we will create an aws-record model called: BasicSecondaryIndexModel, with file prefix: basic_secondary_index_model
+  When we run the rails command line with:
+    """
+    g aws_record:model BasicSecondaryIndexModel id:hkey count:int:rkey title --table_config primary:11.4 secondary_idx:10-5 --gsi=secondary_idx:hkey{title}
     """
   Then a "model" should be generated
   And a "table_config" should be generated

@@ -123,10 +123,6 @@ module AwsRecord
           generate_and_assert_model "TestModelGSIKeys", "test_model_gsi_keys", "gsi_hkey", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}"
         end
 
-        it 'generates a gsi with rkey, hkey and projection type' do 
-          generate_and_assert_model "TestModelGSIKeysProj", "test_model_gsi_keys_proj", "gsi_hkey", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey},proj_type{ALL}"
-        end
-
         it 'generates a model with multiple gsis' do 
           generate_and_assert_model "TestModelGSIMult", "test_model_gsi_mult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}"
         end

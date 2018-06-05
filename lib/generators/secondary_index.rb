@@ -51,8 +51,10 @@ module AwsRecord
       raise ArgumentError.new("You must provide a name") if not name  
       raise ArgumentError.new("You must provide a hash key") if not opts[:hash_key]
 
-      if opts[:projection_type]
+      if opts.key? :projection_type
         raise ArgumentError.new("Invalid projection type #{opts[:projection_type]}") if not PROJ_TYPES.include? opts[:projection_type]
+      else
+        opts[:projection_type] = "ALL"
       end
 
       if opts[:hash_key] == opts[:range_key]
@@ -62,7 +64,7 @@ module AwsRecord
       @name = name
       @hash_key = opts[:hash_key]
       @range_key = opts[:range_key]
-      @projection_type = '"' + "#{opts[:projection_type]}" + '"' if opts[:projection_type]
+      @projection_type = '"' + "#{opts[:projection_type]}" + '"'
     end
   end
 end

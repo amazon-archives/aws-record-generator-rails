@@ -10,6 +10,9 @@ class TestModelGsiKeys
   global_secondary_index(
     :SecondaryIndex,
     hash_key: :gsi_hkey,
-    range_key: :gsi_rkey
+    range_key: :gsi_rkey,
+    projection: {
+      projection_type: "ALL"
+    }
   )
 end
