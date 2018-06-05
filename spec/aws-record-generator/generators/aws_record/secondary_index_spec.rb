@@ -75,16 +75,18 @@ module AwsRecord
 
       it 'correctly handles an KEYS_ONLY projection type' do
         params = "Model:hkey{uuid},proj_type{KEYS_ONLY}"
-      
-        idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq('"KEYS_ONLY"')
+
+        expect {
+          idx = SecondaryIndex.parse(params)
+      }.to raise_error(NotImplementedError)
       end
 
       it 'correctly handles an INCLUDE projection type' do
         params = "Model:hkey{uuid},proj_type{INCLUDE}"
       
-        idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq('"INCLUDE"')
+        expect {
+          idx = SecondaryIndex.parse(params)
+        }.to raise_error(NotImplementedError)
       end
 
       it 'handles invalid projection type types' do

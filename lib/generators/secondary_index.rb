@@ -53,6 +53,7 @@ module AwsRecord
 
       if opts.key? :projection_type
         raise ArgumentError.new("Invalid projection type #{opts[:projection_type]}") if not PROJ_TYPES.include? opts[:projection_type]
+        raise NotImplementedError.new("ALL is the only projection type currently supported") if opts[:projection_type] != "ALL"
       else
         opts[:projection_type] = "ALL"
       end
