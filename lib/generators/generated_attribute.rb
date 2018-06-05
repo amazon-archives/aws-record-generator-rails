@@ -15,6 +15,7 @@ module AwsRecord
   class GeneratedAttribute
 
     OPTS = %w(hkey rkey persist_nil db_attr_name ddb_type default_value)
+    INVALID_HKEY_TYPES = %i(map_attr list_attr numeric_set_attr string_set_attr)
     attr_reader :name, :type
     attr_accessor :options
 
@@ -40,7 +41,7 @@ module AwsRecord
             is_rkey = opts.key?(:range_key)
 
             raise ArgumentError.new("Field #{name} cannot be a range key and hash key simultaneously") if is_hkey && is_rkey
-            raise ArgumentError.new("Field #{name} cannot be a hash key and map_attr simultaneously") if type == :map_attr and is_hkey
+            raise ArgumentError.new("Field #{name} cannot be a hash key and be of type #{type}") if is_hkey and INVALID_HKEY_TYPES.include? type 
         end
       end
       
