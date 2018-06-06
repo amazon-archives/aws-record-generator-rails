@@ -60,6 +60,12 @@ module AwsRecord
       rm_rf @temp_root
     end
 
+    def run_generator(args = default_arguments, config = {})
+      capture(:stderr) do
+        super
+      end
+    end
+
     private
 
     def setup_test_app

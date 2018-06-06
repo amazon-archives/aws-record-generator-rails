@@ -18,16 +18,16 @@ module AwsRecord
   class ModelGenerator < Rails::Generators::NamedBase
 
     source_root File.expand_path('../templates', __FILE__)
-    argument :attributes, type: :array, default: [], banner: "field[:type][:opts] field[:type][:opts]..."
+    argument :attributes, type: :array, default: [], banner: "field[:type][:opts]...", desc: "Describes the fields in the model"
     check_class_collision
 
-    class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
-    class_option :timestamps, type: :boolean, banner: "--timestamps"
-    class_option :table_config, type: :hash, default: {}, banner: "--table-config=[primary:READ..WRITE] [gsi1:READ..WRITE]..."
-    class_option :gsi, type: :array, default: [], banner: "--gsi=name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]..."
+    class_option :disable_mutation_tracking, type: :boolean, desc: "Disables dirty tracking"
+    class_option :timestamps, type: :boolean, desc: "Adds created, updated timestamps to the model"
+    class_option :table_config, type: :hash, default: {}, banner: "primary:R-W [SecondaryIndex1:R-W]...", desc: "Declares the r/w units for the model as well as any secondary indexes", :required => true
+    class_option :gsi, type: :array, default: [], banner: "name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]...", desc: "Allows for the declaration of secondary indexes"
     
-    class_option :required, type: :array, default: [], banner: "--required=field1..."
-    class_option :length_validations, type: :hash, default: {}, banner: "--required=field1:MIN-MAX..."
+    class_option :required, type: :array, default: [], banner: "field1...", desc: "A list of attributes that are required for an instance of the model"
+    class_option :length_validations, type: :hash, default: {}, banner: "field1:MIN-MAX...", desc: "Validations on the length of attributes in a model"
 
     attr_accessor :primary_read_units, :primary_write_units, :gsi_rw_units, :gsis, :required_attrs, :length_validations
 
@@ -59,10 +59,12 @@ module AwsRecord
       parse_validations!
 
       if !@parse_errors.empty?
-        puts "The following errors were encountered while trying to parse the given attributes"
-        puts @parse_errors
+        STDERR.puts "The following errors were encountered while trying to parse the given attributes"
+        STDERR.puts
+        STDERR.puts @parse_errors
+        STDERR.puts
 
-        raise ArgumentError.new("Please fix the errors before proceeding.")
+        abort("Please fix the errors before proceeding.")
       end
     end
 

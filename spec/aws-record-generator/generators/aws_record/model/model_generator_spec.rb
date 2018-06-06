@@ -72,7 +72,7 @@ module AwsRecord
       it 'enforces the uniqueness of field names' do
         expect {
           @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "uuid", "--table-config=primary:5-2"]
-        }.to raise_error(ArgumentError)
+        }.to raise_error(SystemExit)
 
         @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
       end
@@ -80,7 +80,7 @@ module AwsRecord
       it 'enforces the uniqueness of field db_attribute_name across fields' do
         expect {
           @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "long_title:db_attr_name{uuid}", "--table-config=primary:5-2"]
-        }.to raise_error(ArgumentError)
+        }.to raise_error(SystemExit)
 
         @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
       end
@@ -88,7 +88,7 @@ module AwsRecord
       it 'raises an ArgumentError if any of the fields have errors' do
         expect {
           @gen_helper.run_generator ["TestModel_Err", "uuid:invalid_type:hkey", "uuid:hkey,invalid_opt", "uuid:string:hkey,rkey", "uuid:map:hkey", "--table-config=primary:5-2"]
-        }.to raise_error(ArgumentError)
+        }.to raise_error(SystemExit)
       end
 
     end
@@ -107,7 +107,7 @@ module AwsRecord
       it 'throws an error when no table config attributes are provided' do
         expect {
           generate_and_assert_table_config "TableConfigTestModel1", "table_config_test_model1", "uuid:hkey"
-        }.to raise_error(ArgumentError)
+        }.to raise_error(SystemExit)
       end
 
       it 'properly generates the table_config when primary r/w units are provided' do
@@ -132,7 +132,7 @@ module AwsRecord
         it 'enforces that a given hkey is a valid field in the model' do
           expect {
             @gen_helper.run_generator ["TestModel_Err", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"]
-          }.to raise_error(ArgumentError)
+          }.to raise_error(SystemExit)
 
           @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
         end
@@ -140,7 +140,7 @@ module AwsRecord
         it 'enforces that a given rkey is a valid field in the model' do
           expect {
             @gen_helper.run_generator ["TestModel_Err", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"]
-          }.to raise_error(ArgumentError)
+          }.to raise_error(SystemExit)
 
           @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
         end
@@ -150,7 +150,7 @@ module AwsRecord
         it 'throws an error when no r/w unit info is provided' do
           expect {
               generate_and_assert_table_config "TestTableConfigGSIBasic", "test_table_config_gsi_basic", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2"
-          }.to raise_error(ArgumentError)
+          }.to raise_error(SystemExit)
         end
 
         it 'the user can provide r/w values for a table config' do
@@ -164,7 +164,7 @@ module AwsRecord
         it 'errors out when the user provides r/w values for a secondary index that does not exist' do
           expect {
             generate_and_assert_table_config "TestModel_Err", "test_table_config_gsi_provided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2", "SecondaryIndexes:50-100"
-          }.to raise_error(ArgumentError)
+          }.to raise_error(SystemExit)
         end
       end
     end
