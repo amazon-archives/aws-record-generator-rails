@@ -125,11 +125,11 @@ module AwsRecord
       end
 
       it 'allows specification of length validations' do
-        generate_and_assert_model "TestLengthValidations", "test_length_validations", "title", "body", "--length_validations=title:5-10", "body:100-250"
+        generate_and_assert_model "TestLengthValidations", "test_length_validations", "title", "body", "--length-validations=title:5-10", "body:100-250"
       end
 
       it 'allows specification of a combination of validations' do
-        generate_and_assert_model "TestValidations", "test_validations", "title", "body", "--required=title", "body", "--length_validations=title:5-10", "body:100-250"
+        generate_and_assert_model "TestValidations", "test_validations", "title", "body", "--required=title", "body", "--length-validations=title:5-10", "body:100-250"
       end
     end
 
