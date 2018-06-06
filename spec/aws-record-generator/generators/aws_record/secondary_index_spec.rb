@@ -18,22 +18,23 @@ module AwsRecord
 
     context 'when given correct params' do
       it 'sets its properties correctly' do
-        params = "Model:hkey{uuid}:rkey{title}"
+        params = "Model:hkey{uuid},rkey{title}"
       
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
-        expect(idx.hash_key).to eq(:uuid)
-        expect(idx.range_key).to eq(:title)
+        expect(idx.hash_key).to eq("uuid")
+        expect(idx.range_key).to eq("title")
+        expect(idx.projection_type).to eq('"ALL"')
       end
 
       it 'sets its properties correctly independent of input order' do
-        params = "Model:proj_type{ALL}:hkey{uuid}"
+        params = "Model:proj_type{ALL},hkey{uuid}"
 
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
-        expect(idx.hash_key).to eq(:uuid)
+        expect(idx.hash_key).to eq("uuid")
         expect(idx.range_key).to eq(nil)
-        expect(idx.projection_type).to eq(:ALL)
+        expect(idx.projection_type).to eq('"ALL"')
       end
 
       it 'correctly handles underscores in field names' do 
@@ -41,7 +42,7 @@ module AwsRecord
 
         idx = SecondaryIndex.parse(params)
         expect(idx.name).to eq("Model")
-        expect(idx.hash_key).to eq(:long_uuid)
+        expect(idx.hash_key).to eq("long_uuid")
       end
     end
 
@@ -66,28 +67,30 @@ module AwsRecord
 
     context 'when using a projection' do
       it 'correctly handles an ALL projection type' do
-        params = "Model:hkey{uuid}:proj_type{ALL}"
+        params = "Model:hkey{uuid},proj_type{ALL}"
       
         idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq(:ALL)
+        expect(idx.projection_type).to eq('"ALL"')
       end
 
       it 'correctly handles an KEYS_ONLY projection type' do
-        params = "Model:hkey{uuid}:proj_type{KEYS_ONLY}"
-      
-        idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq(:KEYS_ONLY)
+        params = "Model:hkey{uuid},proj_type{KEYS_ONLY}"
+
+        expect {
+          idx = SecondaryIndex.parse(params)
+      }.to raise_error(NotImplementedError)
       end
 
       it 'correctly handles an INCLUDE projection type' do
-        params = "Model:hkey{uuid}:proj_type{INCLUDE}"
+        params = "Model:hkey{uuid},proj_type{INCLUDE}"
       
-        idx = SecondaryIndex.parse(params)
-        expect(idx.projection_type).to eq(:INCLUDE)
+        expect {
+          idx = SecondaryIndex.parse(params)
+        }.to raise_error(NotImplementedError)
       end
 
       it 'handles invalid projection type types' do
-        params = "Model:hkey{uuid}:proj_type{INCLUDES}"
+        params = "Model:hkey{uuid},proj_type{INCLUDES}"
       
         expect {
           idx = SecondaryIndex.parse(params)

@@ -13,13 +13,21 @@ class <%= class_name %>
 <% attributes.each do |attribute| -%>
   <%= attribute.type %> :<%= attribute.name %><% *opts, last_opt = attribute.options.to_a %><%= ', ' if last_opt %><% opts.each do |opt| %><%= opt[0] %>: <%= opt[1] %>, <% end %><% if last_opt %><%= last_opt[0] %>: <%= last_opt[1] %><% end %>
 <% end -%>
+<% gsis.each do |index| %>
+  global_secondary_index(
+    :<%= index.name %>,
+    hash_key: :<%= index.hash_key -%>,<%- if index.range_key %>
+    range_key: :<%= index.range_key -%>,<%- end %>
+    projection: {
+      projection_type: <%= index.projection_type %>
+    }
+  )
+<% end -%>
 <% if !required_attrs.empty? -%>
   validates_presence_of <% *req, last_req = required_attrs -%><% req.each do |required_validation|-%>:<%= required_validation %>, <% end -%>:<%= last_req %>
 <% end -%>
-<% if !length_validations.empty? -%>
 <% length_validations.each do |attribute, validation| -%>
   validates_length_of :<%= attribute %>, within: <%= validation %>
-<% end -%>
 <% end -%>
 end
 <% end -%>

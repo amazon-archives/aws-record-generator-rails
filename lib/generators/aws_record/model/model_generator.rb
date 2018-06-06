@@ -16,21 +16,20 @@ require 'aws-record-generator'
 
 module AwsRecord
   class ModelGenerator < Rails::Generators::NamedBase
-    DEFAULT_READ_UNITS = 5
-    DEFAULT_WRITE_UNITS = 2
 
     source_root File.expand_path('../templates', __FILE__)
-    argument :attributes, type: :array, default: [], banner: "field[:type][:opts] field[:type][:opts]..."
+    argument :attributes, type: :array, default: [], banner: "field[:type][:opts]...", desc: "Describes the fields in the model"
     check_class_collision
 
-    class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
-    class_option :timestamps, type: :boolean, banner: "--timestamps"
-    class_option :table_config, type: :hash, default: {}, banner: "--table-config=read:NUM_READ write:NUM_WRITE"
+    class_option :disable_mutation_tracking, type: :boolean, desc: "Disables dirty tracking"
+    class_option :timestamps, type: :boolean, desc: "Adds created, updated timestamps to the model"
+    class_option :table_config, type: :hash, default: {}, banner: "primary:R-W [SecondaryIndex1:R-W]...", desc: "Declares the r/w units for the model as well as any secondary indexes", :required => true
+    class_option :gsi, type: :array, default: [], banner: "name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]...", desc: "Allows for the declaration of secondary indexes"
     
-    class_option :required, type: :array, default: [], banner: "--required=field1..."
-    class_option :length_validations, type: :hash, default: {}, banner: "--required=field1:MIN-MAX..."
+    class_option :required, type: :array, default: [], banner: "field1...", desc: "A list of attributes that are required for an instance of the model"
+    class_option :length_validations, type: :hash, default: {}, banner: "field1:MIN-MAX...", desc: "Validations on the length of attributes in a model"
 
-    attr_accessor :primary_read_units, :primary_write_units, :required_attrs, :length_validations
+    attr_accessor :primary_read_units, :primary_write_units, :gsi_rw_units, :gsis, :required_attrs, :length_validations
 
     def create_model
       template "model.rb", File.join("app/models", class_path, "#{file_name}.rb")
@@ -50,37 +49,41 @@ module AwsRecord
     private
 
     def initialize(args, *options)
+      @parse_errors = []
+      
       super
+      ensure_unique_fields
+      ensure_hkey
+      parse_gsis!
       parse_table_config!
       parse_validations!
+
+      if !@parse_errors.empty?
+        STDERR.puts "The following errors were encountered while trying to parse the given attributes"
+        STDERR.puts
+        STDERR.puts @parse_errors
+        STDERR.puts
+
+        abort("Please fix the errors before proceeding.")
+      end
     end
 
     def parse_attributes!
-
-      parse_errors = []
 
       self.attributes = (attributes || []).map do |attr|
         begin
           GeneratedAttribute.parse(attr)
         rescue ArgumentError => e
-          parse_errors << e
+          @parse_errors << e
+          next
         end
       end
+      self.attributes = self.attributes.compact
 
       if options['timestamps']
         self.attributes << GeneratedAttribute.parse("created:datetime:default_value{Time.now}")
         self.attributes << GeneratedAttribute.parse("updated:datetime:default_value{Time.now}")
       end
-
-      if !parse_errors.empty?
-        puts "The following errors were encountered while trying to parse the given attributes"
-        puts parse_errors
-
-        raise ArgumentError.new("Please fix the attribute errors before proceeding.")
-      end
-
-      ensure_hkey
-      ensure_unique_fields
     end
 
     def ensure_unique_fields
@@ -107,18 +110,31 @@ module AwsRecord
 
       if !duplicate_fields.empty?
         duplicate_fields.each do |invalid_attr|
-          puts "Found duplicated name: #{invalid_attr[1]}, in #{invalid_attr[0]}"
+          @parse_errors << ArgumentError.new("Found duplicated field name: #{invalid_attr[1]}, in attribute#{invalid_attr[0]}")
         end
-
-        raise ArgumentError.new("Please remove duplicated names before proceeding")
       end
     end
 
     def ensure_hkey
       uuid_member = nil
+      hkey_member = nil
+      rkey_member = nil
+
       self.attributes.each do |attr|
         if attr.options.key? :hash_key
-          return
+          if hkey_member
+            @parse_errors << ArgumentError.new("Redefinition of hash_key attr: #{attr.name}, original declaration of hash_key on: #{hkey_member.name}")
+            next
+          end
+
+          hkey_member = attr
+        elsif attr.options.key? :range_key
+          if rkey_member
+            @parse_errors << ArgumentError.new("Redefinition of range_key attr: #{attr.name}, original declaration of range_key on: #{hkey_member.name}")
+            next
+          end
+
+          rkey_member = attr
         end
 
         if attr.name.include? "uuid"
@@ -126,10 +142,12 @@ module AwsRecord
         end
       end
 
-      if uuid_member
-        uuid_member.options[:hash_key] = true
-      else
-        self.attributes.unshift GeneratedAttribute.parse("uuid:hkey")
+      if !hkey_member
+        if uuid_member
+          uuid_member.options[:hash_key] = true
+        else
+          self.attributes.unshift GeneratedAttribute.parse("uuid:hkey")
+        end
       end
     end
 
@@ -142,27 +160,71 @@ module AwsRecord
     end
 
     def parse_table_config!
-      if !options['table_config'].key? 'read'
-        @primary_read_units = DEFAULT_READ_UNITS
-      else
-        @primary_read_units = options['table_config']['read']
-      end
+      @primary_read_units, @primary_write_units = parse_rw_units("primary")
 
-      if !options['table_config'].key? 'write'
-        @primary_write_units = DEFAULT_WRITE_UNITS
-      else
-        @primary_write_units = options['table_config']['write']
+      @gsi_rw_units = @gsis.map { |idx|
+        [idx.name, parse_rw_units(idx.name)]
+      }.to_h
+
+      options['table_config'].each do |config, rw_units|
+        if config == "primary"
+          next
+        else
+          gsi = @gsis.select { |idx| idx.name == config}
+
+          if gsi.empty?
+            @parse_errors << ArgumentError.new("Could not find a gsi declaration for #{config}")
+          end
+        end
       end
+    end
+
+    def parse_rw_units(name)
+      if !options['table_config'].key? name
+        @parse_errors << ArgumentError.new("Please provide a table_config definition for #{name}")
+      else
+        rw_units = options['table_config'][name]
+        return rw_units.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
+      end
+    end
+
+    def parse_gsis!
+      @gsis = (options['gsi'] || []).map do |raw_idx|
+        begin
+          idx = SecondaryIndex.parse(raw_idx)
+
+          attributes = self.attributes.select { |attr| attr.name == idx.hash_key}
+          if attributes.empty?
+            @parse_errors << ArgumentError.new("Could not find attribute #{idx.hash_key} for gsi #{idx.name} hkey")
+            next
+          end
+
+          if idx.range_key
+            attributes = self.attributes.select { |attr| attr.name == idx.range_key}
+            if attributes.empty?
+              @parse_errors << ArgumentError.new("Could not find attribute #{idx.range_key} for gsi #{idx.name} rkey")
+              next
+            end
+          end
+
+          idx
+        rescue ArgumentError => e
+          @parse_errors << e
+          next
+        end
+      end
+      
+      @gsis = @gsis.compact
     end
 
     def parse_validations!
       @required_attrs = options['required']
       @required_attrs.each do |val_attr|
-        raise ArgumentError("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
+        @parse_errors << ArgumentError.new("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
       end
 
       @length_validations = options['length_validations'].map do |val_attr, bounds|
-        raise ArgumentError("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
+        @parse_errors << ArgumentError.new("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
         
         bounds = bounds.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
         [val_attr, "#{bounds[0]}..#{bounds[1]}"]
