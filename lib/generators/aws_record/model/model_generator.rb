@@ -26,8 +26,11 @@ module AwsRecord
     class_option :disable_mutation_tracking, type: :boolean, banner: "--disable-mutation-tracking"
     class_option :timestamps, type: :boolean, banner: "--timestamps"
     class_option :table_config, type: :hash, default: {}, banner: "--table-config=read:NUM_READ write:NUM_WRITE"
+    
+    class_option :required, type: :array, default: [], banner: "--required=field1..."
+    class_option :length_validations, type: :hash, default: {}, banner: "--required=field1:MIN-MAX..."
 
-    attr_accessor :primary_read_units, :primary_write_units
+    attr_accessor :primary_read_units, :primary_write_units, :required_attrs, :length_validations
 
     def create_model
       template "model.rb", File.join("app/models", class_path, "#{file_name}.rb")
@@ -49,6 +52,7 @@ module AwsRecord
     def initialize(args, *options)
       super
       parse_table_config!
+      parse_validations!
     end
 
     def parse_attributes!
@@ -133,6 +137,10 @@ module AwsRecord
       options['disable_mutation_tracking']
     end
 
+    def has_validations?
+      !@required_attrs.empty? || !@length_validations.empty?
+    end
+
     def parse_table_config!
       if !options['table_config'].key? 'read'
         @primary_read_units = DEFAULT_READ_UNITS
@@ -145,6 +153,21 @@ module AwsRecord
       else
         @primary_write_units = options['table_config']['write']
       end
+    end
+
+    def parse_validations!
+      @required_attrs = options['required']
+      @required_attrs.each do |val_attr|
+        raise ArgumentError("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
+      end
+
+      @length_validations = options['length_validations'].map do |val_attr, bounds|
+        raise ArgumentError("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
+        
+        bounds = bounds.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
+        [val_attr, "#{bounds[0]}..#{bounds[1]}"]
+      end
+      @length_validations = @length_validations.to_h
     end
   end
 end

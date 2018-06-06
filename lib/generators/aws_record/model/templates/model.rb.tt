@@ -1,13 +1,25 @@
 require 'aws-record'
+<%= "require 'active_model'
+" if has_validations? -%>
 
 <% module_namespacing do -%>
 class <%= class_name %>
   include Aws::Record
+<%= '  include ActiveModel::Validations
+' if has_validations? -%>
 <%= '  disable_mutation_tracking
 ' if mutation_tracking_disabled? -%>
 
 <% attributes.each do |attribute| -%>
   <%= attribute.type %> :<%= attribute.name %><% *opts, last_opt = attribute.options.to_a %><%= ', ' if last_opt %><% opts.each do |opt| %><%= opt[0] %>: <%= opt[1] %>, <% end %><% if last_opt %><%= last_opt[0] %>: <%= last_opt[1] %><% end %>
+<% end -%>
+<% if !required_attrs.empty? -%>
+  validates_presence_of <% *req, last_req = required_attrs -%><% req.each do |required_validation|-%>:<%= required_validation %>, <% end -%>:<%= last_req %>
+<% end -%>
+<% if !length_validations.empty? -%>
+<% length_validations.each do |attribute, validation| -%>
+  validates_length_of :<%= attribute %>, within: <%= validation %>
+<% end -%>
 <% end -%>
 end
 <% end -%>
