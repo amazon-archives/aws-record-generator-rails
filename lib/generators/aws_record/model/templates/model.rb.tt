@@ -1,8 +1,12 @@
 require 'aws-record'
+<%= "require 'active_model'
+" if has_validations? -%>
 
 <% module_namespacing do -%>
 class <%= class_name %>
   include Aws::Record
+<%= '  include ActiveModel::Validations
+' if has_validations? -%>
 <%= '  disable_mutation_tracking
 ' if mutation_tracking_disabled? -%>
 
@@ -18,6 +22,12 @@ class <%= class_name %>
       projection_type: <%= index.projection_type %>
     }
   )
+<% end -%>
+<% if !required_attrs.empty? -%>
+  validates_presence_of <% *req, last_req = required_attrs -%><% req.each do |required_validation|-%>:<%= required_validation %>, <% end -%>:<%= last_req %>
+<% end -%>
+<% length_validations.each do |attribute, validation| -%>
+  validates_length_of :<%= attribute %>, within: <%= validation %>
 <% end -%>
 end
 <% end -%>

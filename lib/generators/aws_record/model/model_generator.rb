@@ -25,8 +25,11 @@ module AwsRecord
     class_option :timestamps, type: :boolean, banner: "--timestamps"
     class_option :table_config, type: :hash, default: {}, banner: "--table-config=[primary:READ..WRITE] [gsi1:READ..WRITE]..."
     class_option :gsi, type: :array, default: [], banner: "--gsi=name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]..."
+    
+    class_option :required, type: :array, default: [], banner: "--required=field1..."
+    class_option :length_validations, type: :hash, default: {}, banner: "--required=field1:MIN-MAX..."
 
-    attr_accessor :primary_read_units, :primary_write_units, :gsi_rw_units, :gsis
+    attr_accessor :primary_read_units, :primary_write_units, :gsi_rw_units, :gsis, :required_attrs, :length_validations
 
     def create_model
       template "model.rb", File.join("app/models", class_path, "#{file_name}.rb")
@@ -53,6 +56,7 @@ module AwsRecord
       ensure_hkey
       parse_gsis!
       parse_table_config!
+      parse_validations!
 
       if !@parse_errors.empty?
         puts "The following errors were encountered while trying to parse the given attributes"
@@ -149,6 +153,10 @@ module AwsRecord
       options['disable_mutation_tracking']
     end
 
+    def has_validations?
+      !@required_attrs.empty? || !@length_validations.empty?
+    end
+
     def parse_table_config!
       @primary_read_units, @primary_write_units = parse_rw_units("primary")
 
@@ -205,6 +213,21 @@ module AwsRecord
       end
       
       @gsis = @gsis.compact
+    end
+
+    def parse_validations!
+      @required_attrs = options['required']
+      @required_attrs.each do |val_attr|
+        @parse_errors << ArgumentError.new("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
+      end
+
+      @length_validations = options['length_validations'].map do |val_attr, bounds|
+        @parse_errors << ArgumentError.new("No such field #{val_attr} in required validations") if !self.attributes.any? { |attr| attr.name == val_attr }
+        
+        bounds = bounds.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
+        [val_attr, "#{bounds[0]}..#{bounds[1]}"]
+      end
+      @length_validations = @length_validations.to_h
     end
   end
 end

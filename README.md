@@ -4,8 +4,8 @@ Allows the generation of aws-record models using a Rails generator
 
 ## Links of Interest
 
-* aws-record Documentation(https://docs.aws.amazon.com/awssdkrubyrecord/api/)
-* DynamoDB Developers Guide(https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html)
+* [aws-record Documentation](https://docs.aws.amazon.com/awssdkrubyrecord/api/)
+* [DynamoDB Developers Guide](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html)
 
 ## Installation
 
