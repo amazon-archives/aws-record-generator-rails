@@ -93,16 +93,6 @@ module AwsRecord
 
     end
 
-    context 'it creates the table config migrate task' do
-      it 'creates the rake task' do
-        @gen_helper.run_generator ["TestRakeTask", "uuid:hkey", "--table-config=primary:5-2"]
-      
-        generated_file_path = File.join(@gen_helper.destination_root, "lib/tasks/table_config_migrate_task.rake")
-        fixture_file_path = File.expand_path("fixtures/unit/table_config_migrate_task.rake")
-        @gen_helper.assert_file(generated_file_path, fixture_file_path)
-      end
-    end
-
     context 'properly generated table configs based on input' do
       it 'throws an error when no table config attributes are provided' do
         expect {
