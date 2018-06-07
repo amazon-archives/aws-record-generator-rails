@@ -18,12 +18,14 @@ config.generators do |g|
   g.orm             :aws_record
 end
 ```
+NOTE: The `aws_record:model` generator is not currently compatible with the Rails controller or scaffold generators.
+
 
 which will result in aws_record being invoked when you call `rails g model ...`
 
 The syntax for creating an aws-record model follows:
 
-`rails g aws_record:model field_name:type:opts... --disable_mutation_tracking --table-config=read:NUM_READ write:NUM_WRITE`
+`rails generate aws_record:model NAME [field[:type][:opts]...] [options]`
 
 The possible field types are:
 
@@ -45,7 +47,7 @@ If a type is not provided `aws-record-generator` will assume the field is of typ
 
 Additionally a number of options may be attached as a comma seperated list to the field:
 
-Option Name | aws-record option
+Field Option Name | aws-record option
 ---------------- | -------------
 `hkey` | marks an attribute as a hash_key
 `rkey` | marks an attribute as a range_key
@@ -54,10 +56,21 @@ Option Name | aws-record option
 `ddb_type{S\|N\|B\|BOOL\|SS\|NS\|BS\|M\|L}` | sets the dynamo_db_type for an attribute
 `default_value{Object}` | sets the default value for an attribute
 
-The standard rules apply for using options in a model. Additional reading can be found here(#links-of-interest)
+The standard rules apply for using options in a model. Additional reading can be found [here](#links-of-interest)
+
+Command Option Names | Purpose
+-------------------- | -----------
+  [--skip-namespace], [--no-skip-namespace]                                             | Skip namespace (affects only isolated applications)
+  [--disable-mutation-tracking], [--no-disable-mutation-tracking]                       | Disables dirty tracking
+  [--timestamps], [--no-timestamps]                                                     | Adds created, updated timestamps to the model
+  --table-config=primary:R-W [SecondaryIndex1:R-W]...                                   | Declares the r/w units for the model as well as any secondary indexes
+  [--gsi=name:hkey{field_name}[,rkey{field_name},proj_type{ALL\|KEYS_ONLY\|INCLUDE}]...]  | Allows for the declaration of secondary indexes
+  [--required=field1...]                                                                | A list of attributes that are required for an instance of the model
+  [--length-validations=field1:MIN-MAX...]                                              | Validations on the length of attributes in a model
+  
 
 An example invocation is:
-`rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false}`
+`rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false} --table-config=primary:5-2`
 
 Which results in the following files being generated:
 
