@@ -39,13 +39,6 @@ module AwsRecord
       template "table_config.rb", File.join("db/table_config", class_path, "#{file_name}_config.rb")
     end
 
-    def create_table_config_migrate_task
-      rake_task_path = File.join("lib", "tasks", "table_config_migrate_task.rake")
-      if !File.exist? rake_task_path
-        template "table_config_migrate_task.rake", rake_task_path
-      end
-    end
-
     private
 
     def initialize(args, *options)
