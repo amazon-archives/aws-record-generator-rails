@@ -17,61 +17,63 @@ require "fileutils"
 require "minitest/spec"
 
 module AwsRecord
-  class GeneratorTestHelper
-    include Minitest::Assertions
-    attr_accessor :assertions
+  module Generators
+    class GeneratorTestHelper
+      include Minitest::Assertions
+      attr_accessor :assertions
 
-    include Rails::Generators::Testing::Behaviour
-    include FileUtils
+      include Rails::Generators::Testing::Behaviour
+      include FileUtils
 
-    def initialize(klass, dest)
-      @temp_root = File.expand_path(dest)
+      def initialize(klass, dest)
+        @temp_root = File.expand_path(dest)
 
-      GeneratorTestHelper.tests klass
-      temp_app_dest = File.join(File.expand_path(@temp_root, __dir__), "test_app")
-      GeneratorTestHelper.destination temp_app_dest
-      
-      destination_root_is_set?
-      prepare_destination
-      setup_test_app
-      ensure_current_path
+        GeneratorTestHelper.tests klass
+        temp_app_dest = File.join(File.expand_path(@temp_root, __dir__), "test_app")
+        GeneratorTestHelper.destination temp_app_dest
+        
+        destination_root_is_set?
+        prepare_destination
+        setup_test_app
+        ensure_current_path
 
-      self.assertions = 0
-    end
-
-    def run_in_test_app(cmd)
-      cd destination_root
-      a = `rails #{cmd}`
-
-      ensure_current_path
-    end
-
-    def assert_file(generated_file, actual_file)
-      assert File.exist?(generated_file), "Expected file #{generated_file.inspect} to exist, but does not"
-      assert File.exist?(actual_file), "Expected file #{actual_file.inspect} to exist, but does not"
-      assert identical? generated_file, actual_file
-    end
-
-    def assert_not_file(file_path)
-      assert !File.exist?(file_path), "Expected file #{file_path.inspect} to not exist, but does"
-    end
-
-    def cleanup
-      rm_rf @temp_root
-    end
-
-    def run_generator(args = default_arguments, config = {})
-      capture(:stderr) do
-        super
+        self.assertions = 0
       end
-    end
 
-    private
+      def run_in_test_app(cmd)
+        cd destination_root
+        a = `rails #{cmd}`
 
-    def setup_test_app
-      Rails::Generators::AppGenerator.start [destination_root, '--skip-bundle', '--skip-git', '--skip-spring', '--skip-test', '-d' , '--skip-javascript', '--force', '--quiet']
-      `echo 'gem "aws-record-generator", :path => "../../"' >> "#{destination_root}/Gemfile"`
-      `bundle install --gemfile "#{destination_root}/Gemfile"`
+        ensure_current_path
+      end
+
+      def assert_file(generated_file, actual_file)
+        assert File.exist?(generated_file), "Expected file #{generated_file.inspect} to exist, but does not"
+        assert File.exist?(actual_file), "Expected file #{actual_file.inspect} to exist, but does not"
+        assert identical? generated_file, actual_file
+      end
+
+      def assert_not_file(file_path)
+        assert !File.exist?(file_path), "Expected file #{file_path.inspect} to not exist, but does"
+      end
+
+      def cleanup
+        rm_rf @temp_root
+      end
+
+      def run_generator(args = default_arguments, config = {})
+        capture(:stderr) do
+          super
+        end
+      end
+
+      private
+
+      def setup_test_app
+        Rails::Generators::AppGenerator.start [destination_root, '--skip-bundle', '--skip-git', '--skip-spring', '--skip-test', '-d' , '--skip-javascript', '--force', '--quiet']
+        `echo 'gem "aws-record-generator", :path => "../../"' >> "#{destination_root}/Gemfile"`
+        `bundle install --gemfile "#{destination_root}/Gemfile"`
+      end
     end
   end
 end
