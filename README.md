@@ -9,19 +9,120 @@ Allows the generation of aws-record models using a Rails generator
 
 ## Installation
 
+You can install the gem from RubyGems using the `--pre` flag
+`gem install 'aws-record-generator' --pre`
+
+This automatically includes a dependency on the `aws-record` gem, major version 2, as well as a dependency on `>= Rails v4.2`
+
 ## Usage
 
-You can either invoke the generator by calling `rails g aws_record:model ...` or you can configure `aws-record-generator` to be your project's default orm in `config/application.rb` by:
+
+### Setup
+
+You can either invoke the generator by calling `rails g aws_record:model ...`
+
+If DynamoDB will be the only datastore you plan on using you can also set `aws-record-generator` to be your project's default orm with
 
 ```ruby
 config.generators do |g|
   g.orm             :aws_record
 end
 ```
-NOTE: The `aws_record:model` generator is not currently compatible with the Rails controller or scaffold generators.
+Which will cause `aws_record:model` to be invoked by the Rails model generator.
+
+NOTE: At the present moment `aws_record:model` is not compatible with Rails scaffolding
 
 
-which will result in aws_record being invoked when you call `rails g model ...`
+### Generating a model
+
+Generating a model can be as simple as: `rails g aws_record:model Forum --table-config primary:10-5`
+`aws-record-generator` will automatically create a `uuid:hash_key` field for you, and a table config with the provided r/w units
+
+```ruby
+# app/models/forum.rb
+
+require 'aws-record'
+
+class Forum
+  include Aws::Record
+
+  string_attr :uuid, hash_key: true
+end
+
+# db/table_config/forum_config.rb
+
+require 'aws-record'
+
+module ModelTableConfig
+  def self.config
+    Aws::Record::TableConfig.define do |t|
+      t.model_class Forum
+
+      t.read_capacity_units 10
+      t.write_capacity_units 5
+    end
+  end
+end
+
+```
+
+More complex models can be created by adding more fields to the model as well as other options:
+
+`rails g aws_record Forum post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new}`
+
+```ruby
+# app/models/forum.rb
+
+require 'aws-record'
+
+class Forum
+  include Aws::Record
+
+  string_attr :uuid, hash_key: true
+  string_attr :post_id, range_key: true
+  string_attr :author_username
+  string_attr :post_title
+  string_attr :post_body
+  string_set_attr :tags, default_value: Set.new
+end
+
+# db/table_config/forum_config.rb
+# ...
+
+```
+
+Finally you can attach a variety of options to your fields, and even `ActiveModel` validations to the models:
+
+`rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false} --table-config=primary:5-2`
+
+Which results in the following files being generated:
+
+```ruby
+
+# app/models/forum.rb
+
+require 'aws-record'
+
+class Forum
+  include Aws::Record
+
+  string_attr :forum_uuid, hash_key: true
+  string_attr :post_id, range_key: true
+  string_attr :author_username
+  string_attr :post_title
+  string_attr :post_body
+  string_set_attr :tags, default_value: Set.new
+  datetime_attr :created_at, database_attribute_name: "PostCreatedAtTime"
+  boolean_attr :moderation, default_value: false
+end
+
+# db/table_config/forum_config.rb
+# ...
+
+```
+
+
+### Docs
 
 The syntax for creating an aws-record model follows:
 
@@ -68,52 +169,6 @@ Command Option Names | Purpose
   [--required=field1...]                                                                | A list of attributes that are required for an instance of the model
   [--length-validations=field1:MIN-MAX...]                                              | Validations on the length of attributes in a model
   
-
-An example invocation is:
-`rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false} --table-config=primary:5-2`
-
-Which results in the following files being generated:
-
-```ruby
-
-# app/models/forum.rb
-
-require 'aws-record'
-
-class Forum
-  include Aws::Record
-
-  string_attr :forum_uuid, hash_key: true
-  string_attr :post_id, range_key: true
-  string_attr :author_username
-  string_attr :post_title
-  string_attr :post_body
-  string_set_attr :tags, default_value: Set.new
-  datetime_attr :created_at, database_attribute_name: "PostCreatedAtTime"
-  boolean_attr :moderation, default_value: false
-end
-
-```
-```ruby
-
-# db/table_config/forum_config.rb
-
-require 'aws-record'
-
-module ModelTableConfig
-  def self.config
-    Aws::Record::TableConfig.define do |t|
-      t.model_class Forum
-
-      t.read_capacity_units 5
-      t.write_capacity_units 2
-    end
-  end
-end
-
-```
-
-Additionally the first time the generator is run, it places a rake task in `lib/tasks/table_config_migrate_task.rake` which runs all of the table configs in `db/table_config` and can be called by `rails aws_record:migrate`
 
 ## License
 
