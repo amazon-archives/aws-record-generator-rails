@@ -10,7 +10,7 @@ module AwsRecord
   
         # GET index
         def self.all(klass)
-          "#{klass}.all"
+          "#{klass}.scan"
         end
   
         # GET show

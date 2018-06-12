@@ -1,5 +1,6 @@
 
 require "rails/generators/resource_helpers"
+require 'generators/aws_record/model/active_model'
 
 module AwsRecord
   module Generators
@@ -31,6 +32,11 @@ module AwsRecord
       # Invoke the helper using the controller name (pluralized)
       hook_for :helper, as: :scaffold, in: :rails do |invoked|
         invoke invoked, [ controller_name ]
+      end
+
+      private
+      def orm_class
+        @orm_class = AwsRecord::Generators::ActiveModel
       end
     end
   end
