@@ -4,5 +4,5 @@ gemspec
 
 group :test do
   gem 'rspec', '~> 3'
-  gem 'cucumber-rails'
+  gem 'cucumber'
 end
