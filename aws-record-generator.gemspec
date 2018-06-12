@@ -7,18 +7,9 @@ Gem::Specification.new do |spec|
   spec.email         = ["yasharm@amazon.com"]
 
   spec.summary       = "Rails generators for aws-record"
-  spec.description   = "Provides generators that integrate aws-record models with Rails scaffolding"
+  spec.description   = "Rails generators for aws-record models"
   spec.homepage      = "https://github.com/awslabs/aws-record-generator"
   spec.license       = "Apache 2.0"
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
 
   spec.require_paths = ["lib"]
   spec.files = Dir['lib/**/*.rb']
