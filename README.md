@@ -93,7 +93,7 @@ end
 
 Finally you can attach a variety of options to your fields, and even `ActiveModel` validations to the models:
 
-`rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false} --table-config=primary:5-2`
+`rails g aws_record:model Forum forum_uuid:hkey post_id:rkey author_username post_title post_body tags:sset:default_value{Set.new} created_at:datetime:db_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false} --table-config=primary:5-2 AuthorIndex:12-14 --required=post_title --length-validations=post_body:50-1000 --gsi=AuthorIndex:hkey{author_username}`
 
 Which results in the following files being generated:
 
@@ -102,9 +102,11 @@ Which results in the following files being generated:
 # app/models/forum.rb
 
 require 'aws-record'
+require 'active_model'
 
 class Forum
   include Aws::Record
+  include ActiveModel::Validations
 
   string_attr :forum_uuid, hash_key: true
   string_attr :post_id, range_key: true
@@ -114,6 +116,16 @@ class Forum
   string_set_attr :tags, default_value: Set.new
   datetime_attr :created_at, database_attribute_name: "PostCreatedAtTime"
   boolean_attr :moderation, default_value: false
+
+  global_secondary_index(
+    :AuthorIndex,
+    hash_key: :author_username,
+    projection: {
+      projection_type: "ALL"
+    }
+  )
+  validates_presence_of :post_title
+  validates_length_of :post_body, within: 50..1000
 end
 
 # db/table_config/forum_config.rb
