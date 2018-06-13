@@ -29,5 +29,8 @@ class <%= class_name %>
 <% length_validations.each do |attribute, validation| -%>
   validates_length_of :<%= attribute %>, within: <%= validation %>
 <% end -%>
+<% if options['table_name'] -%>
+  set_table_name "<%= options['table_name'] %>"
+<% end -%>
 end
 <% end -%>
