@@ -133,6 +133,7 @@ end
 
 ```
 
+To migrate your new models and begin using them you can run the provided rake task: `rails aws_record:migrate`
 
 ### Docs
 
@@ -181,6 +182,7 @@ Command Option Names | Purpose
   [--required=field1...]                                                                | A list of attributes that are required for an instance of the model
   [--length-validations=field1:MIN-MAX...]                                              | Validations on the length of attributes in a model
   
+The included rake task `aws_record:migrate` will run all of the migrations in `app/db/table_config`
 
 ## License
 

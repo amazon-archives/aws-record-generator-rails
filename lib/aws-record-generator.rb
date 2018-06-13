@@ -16,6 +16,7 @@ require_relative 'generators/secondary_index'
 require_relative 'generators/test_helper'
 require_relative 'generators/aws_record/model/model_generator'
 
+require 'aws-record'
 require 'rails/railtie'
 
 module AwsRecord

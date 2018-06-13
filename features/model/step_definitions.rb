@@ -15,7 +15,7 @@ require 'securerandom'
 require 'aws-record-generator'
 
 Before do
-  @gen_helper = AwsRecord::GeneratorTestHelper.new(AwsRecord::ModelGenerator, "tmp")
+  @gen_helper = AwsRecord::Generators::GeneratorTestHelper.new(AwsRecord::Generators::ModelGenerator, "tmp")
   @file_prefix = nil
 end
 
