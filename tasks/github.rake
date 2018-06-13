@@ -12,8 +12,8 @@
 # and limitations under the License.
 
 task 'github:require-access-token' do
-  unless ENV['AWS_RECORD_GENERATOR_GH_TOKEN']
-    warn("export ENV['AWS_RECORD_GENERATOR_GH_TOKEN']")
+  unless ENV['AWS_SDK_FOR_RUBY_GH_TOKEN']
+    warn("export ENV['AWS_SDK_FOR_RUBY_GH_TOKEN']")
     exit
   end
 end
@@ -24,9 +24,9 @@ task 'github:access-token'
 task 'github:release' do
   require 'octokit'
 
-  gh = Octokit::Client.new(access_token: ENV['AWS_RECORD_GENERATOR_GH_TOKEN'])
+  gh = Octokit::Client.new(access_token: ENV['AWS_SDK_FOR_RUBY_GH_TOKEN'])
 
-  repo = 'aws/aws-sdk-ruby-record'
+  repo = 'awslabs/aws-record-generator-rails'
   tag_ref_sha = `git show-ref v#{$VERSION}`.split(' ').first
   tag = gh.tag(repo, tag_ref_sha)
 
@@ -36,7 +36,7 @@ task 'github:release' do
     prerelease: $VERSION.match('pre') ? true : false,
   })
 
-  gh.upload_asset(release.url, "aws-record-#{$VERSION}.gem",
+  gh.upload_asset(release.url, "aws-record-generator-#{$VERSION}.gem",
     :content_type => 'application/octet-stream')
 
 end
