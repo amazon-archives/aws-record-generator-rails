@@ -26,6 +26,11 @@ end
 When("we run the rails command line with:") do |cmd|
   if cmd.start_with?('g aws_record:model')
     @table_name = cmd.split(' ')[2]
+
+    begin
+      @client.describe_table(table_name: @table_name)
+      abort("#{@table_name} already exists in DynamoDB")
+    rescue Aws::DynamoDB::Errors::ResourceNotFoundException; end
   end
 
   @gen_helper.run_in_test_app cmd
