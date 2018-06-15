@@ -14,4 +14,5 @@ class BasicSecondaryIndexModel
       projection_type: "ALL"
     }
   )
+  set_table_name "#table_name#"
 end

@@ -25,7 +25,9 @@ end
 
 When("we run the rails command line with:") do |cmd|
   if cmd.start_with?('g aws_record:model')
-    @table_name = cmd.split(' ')[2]
+    @model_name = cmd.split(' ')[2]
+    @table_name = "#{@model_name}_#{SecureRandom.uuid}"
+    cmd << " --table-name=#{@table_name}"
 
     begin
       @client.describe_table(table_name: @table_name)
@@ -42,10 +44,10 @@ Then("a {string} should be generated matching fixture at: {string}") do |generat
 
   if generated_type == "model"
     generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{file_prefix}.rb")
-    @gen_helper.assert_file(generated_file_path, fixture_file_path)
+    @gen_helper.assert_model_rand_table_name(generated_file_path, fixture_file_path, @table_name)
 
     require "#{generated_file_path}"
-    @model = Object.const_get("#{@table_name}")
+    @model = Object.const_get("#{@model_name}")
   elsif generated_type == "table_config"
     generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{file_prefix}.rb")
     @gen_helper.assert_file(generated_file_path, fixture_file_path)
