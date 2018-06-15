@@ -26,7 +26,7 @@ end
 When("we run the rails command line with:") do |cmd|
   if cmd.start_with?('g aws_record:model')
     @model_name = cmd.split(' ')[2]
-    @table_name = SecureRandom.uuid
+    @table_name = "#{@model_name}_#{SecureRandom.uuid}"
     cmd << " --table-name=#{@table_name}"
 
     begin
