@@ -10,15 +10,26 @@ module AwsRecord
   
         # GET index
         def self.all(klass)
-          "#{klass}.scan"
+          "#{klass}.scan" # TODO No God no plz no.
         end
   
         # GET show
         # GET edit
         # PATCH/PUT update
         # DELETE destroy
-        def self.find(klass, params = nil)
-          "#{klass}.find(#{params})"
+        def self.find(klass, attrs)
+          hkey = attrs.select{|attr| attr.options[:hash_key]}[0]
+          rkey = attrs.select{|attr| attr.options[:range_key]}
+          rkey = !rkey.empty? ? rkey[0] : nil
+
+          if rkey
+            """
+            id = params[:id].split('-')
+            #{klass}.find(#{hkey.name}: id[0], #{rkey.name}: id[1])
+            """
+          else
+            "#{klass}.find(#{hkey.name}: params[:id])"
+          end
         end
   
         # GET new
@@ -49,7 +60,7 @@ module AwsRecord
   
         # DELETE destroy
         def destroy
-          "#{name}.destroy"
+          "#{name}.delete!"
         end
       end
     end

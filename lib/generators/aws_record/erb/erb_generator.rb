@@ -4,7 +4,7 @@ require "rails/generators/resource_helpers"
 
 module AwsRecord
   module Generators
-    class ErbGenerator < Erb::Generators::Base
+    class ErbGenerator < Base
       include Rails::Generators::ResourceHelpers
       source_root File.expand_path('../templates', __FILE__)
 
@@ -28,6 +28,23 @@ module AwsRecord
       def available_views
         %w(index edit show new _form)
       end
+
+      def formats
+        [format]
+      end
+
+      def format
+        :html
+      end
+
+      def handler
+        :erb
+      end
+
+      def filename_with_extensions(name, file_format = format)
+        [name, file_format, handler].compact.join(".")
+      end
+
     end
   end
 end

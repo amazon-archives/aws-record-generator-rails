@@ -4,7 +4,7 @@ require 'generators/aws_record/model/active_model'
 
 module AwsRecord
   module Generators
-    class ScaffoldControllerGenerator < Rails::Generators::NamedBase
+    class ScaffoldControllerGenerator < Base
       include Rails::Generators::ResourceHelpers
       source_root File.expand_path('../templates', __FILE__)
 
