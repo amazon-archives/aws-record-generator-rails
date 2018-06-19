@@ -186,6 +186,13 @@ module AwsRecord
         end
       end
 
+      context 'it allows you to disable table_config generation' do
+        it 'allows specification of required validations' do
+          @gen_helper.run_generator ["TestSkipTableConfig", "--skip-table-config"]
+          @gen_helper.assert_not_file(File.expand_path("fixtures/unit/table_config/test_skip_table_config_config.rb"))
+        end
+      end
+
     end
   end
 end
