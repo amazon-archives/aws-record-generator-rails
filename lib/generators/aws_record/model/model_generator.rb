@@ -27,6 +27,7 @@ module AwsRecord
       class_option :table_config, type: :hash, default: {}, banner: "primary:R-W [SecondaryIndex1:R-W]...", desc: "Declares the r/w units for the model as well as any secondary indexes", :required => true
       class_option :gsi, type: :array, default: [], banner: "name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]...", desc: "Allows for the declaration of secondary indexes"
       class_option :table_name, type: :string, banner: "model_table_name"
+      class_option :skip_table_config, type: :boolean, desc: "Disables the generation of a table_config file"
 
       class_option :required, type: :array, default: [], banner: "field1...", desc: "A list of attributes that are required for an instance of the model"
       class_option :length_validations, type: :hash, default: {}, banner: "field1:MIN-MAX...", desc: "Validations on the length of attributes in a model"
@@ -38,7 +39,7 @@ module AwsRecord
       end
 
       def create_table_config
-        template "table_config.rb", File.join("db/table_config", class_path, "#{file_name}_config.rb")
+        template "table_config.rb", File.join("db/table_config", class_path, "#{file_name}_config.rb") unless options.key?(:skip_table_config)
       end
 
       private
@@ -176,7 +177,7 @@ module AwsRecord
 
       def parse_rw_units(name)
         if !options['table_config'].key? name
-          @parse_errors << ArgumentError.new("Please provide a table_config definition for #{name}")
+          @parse_errors << ArgumentError.new("Please provide a table_config definition for #{name}") unless name == "primary" && options.key?(:skip_table_config)
         else
           rw_units = options['table_config'][name]
           return rw_units.gsub(/[,.-]/, ':').split(':').reject { |s| s.empty? }
