@@ -77,7 +77,7 @@ module AwsRecord
             @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "uuid", "--table-config=primary:5-2"]
           }.to raise_error(SystemExit)
 
-          @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+          @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
         end
 
         it 'enforces the uniqueness of field db_attribute_name across fields' do
@@ -85,7 +85,7 @@ module AwsRecord
             @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "long_title:db_attr_name{uuid}", "--table-config=primary:5-2"]
           }.to raise_error(SystemExit)
 
-          @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+          @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
         end
 
         it 'raises an ArgumentError if any of the fields have errors' do
@@ -131,7 +131,7 @@ module AwsRecord
               @gen_helper.run_generator ["TestModel_Err", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"]
             }.to raise_error(SystemExit)
 
-            @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+            @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
           end
 
           it 'enforces that a given rkey is a valid field in the model' do
@@ -139,7 +139,7 @@ module AwsRecord
               @gen_helper.run_generator ["TestModel_Err", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"]
             }.to raise_error(SystemExit)
 
-            @gen_helper.assert_not_file(File.expand_path("fixtures/unit/model/test_model_err.rb"))
+            @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
           end
         end
 
@@ -189,7 +189,7 @@ module AwsRecord
       context 'it allows you to disable table_config generation' do
         it 'allows specification of required validations' do
           @gen_helper.run_generator ["TestSkipTableConfig", "--skip-table-config"]
-          @gen_helper.assert_not_file(File.expand_path("fixtures/unit/table_config/test_skip_table_config_config.rb"))
+          @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_skip_table_config_config.rb"))
         end
       end
 
