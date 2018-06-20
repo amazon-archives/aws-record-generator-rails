@@ -11,6 +11,9 @@ Description:
 
     Timestamps are not added by default but you can add them using the `--timestamps` flag
     More information can be found at: https://github.com/awslabs/aws-record-generator/blob/master/README.md
+    
+    You don't have to think up every attribute up front, but it helps to
+    sketch out a few so you can start working with the resource immediately.
 
 Example:
     rails generate aws_record:model Forum forum_uuid:hkey post_id:rkey post_title post_body tags:sset:default_value{Set.new} created_at:datetime:d_attr_name{PostCreatedAtTime} moderation:boolean:default_value{false}
