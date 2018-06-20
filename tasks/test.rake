@@ -13,7 +13,7 @@
 
 require 'rspec/core/rake_task'
 
-desc "aws-record unit tests"
+desc "aws-record-generator unit tests"
 RSpec::Core::RakeTask.new('test:unit') do |t|
   t.rspec_opts = "-I #{$REPO_ROOT}/lib"
   t.rspec_opts << " -I #{$REPO_ROOT}/spec"

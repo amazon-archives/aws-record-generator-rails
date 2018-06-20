@@ -181,7 +181,9 @@ Command Option Names | Purpose
   [--gsi=name:hkey{field_name}[,rkey{field_name},proj_type{ALL\|KEYS_ONLY\|INCLUDE}]...]  | Allows for the declaration of secondary indexes
   [--required=field1...]                                                                | A list of attributes that are required for an instance of the model
   [--length-validations=field1:MIN-MAX...]                                              | Validations on the length of attributes in a model
-  
+  [--table-name=name] | Sets the name of the table in DynamoDB, if different than the model name
+  [--skip-table-config] | Doesn't generate a table config for the model
+
 The included rake task `aws_record:migrate` will run all of the migrations in `app/db/table_config`
 
 ## License

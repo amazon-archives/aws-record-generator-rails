@@ -53,6 +53,17 @@ module AwsRecord
         assert identical? generated_file, actual_file
       end
 
+      def assert_model_rand_table_name(generated_file, actual_file, table_name)
+        assert File.exist?(generated_file), "Expected file #{generated_file.inspect} to exist, but does not"
+        assert File.exist?(actual_file), "Expected file #{actual_file.inspect} to exist, but does not"
+
+        fixture = File.read(actual_file)
+        generated = File.read(generated_file)
+        fixture = fixture.gsub(/#table_name#/, table_name)
+
+        assert fixture == generated
+      end
+
       def assert_not_file(file_path)
         assert !File.exist?(file_path), "Expected file #{file_path.inspect} to not exist, but does"
       end
