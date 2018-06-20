@@ -21,13 +21,13 @@ Before do
     config.default_driver = :selenium_chrome_headless
     config.app_host = 'http://localhost:8080'
   end
-
-  @rails_app = Kernel.spawn("(cd tmp/test_app && rails server --port 8080)", :out => "tmp/test_server.log")
-  Process.detach(@rails_app)
+  
+  @rails_app = Kernel.spawn("cd tmp/test_app && rails server --port 8080", :out => "tmp/test_server.log")
 end
 
-After("@acceptancetest") do
-  Process.kill("INT", @rails_app)
+After("@scaffoldtest") do
+  Process.kill("TERM", @rails_app)
+  Process.wait(@rails_app)
 end
 
 When (/^we navigate to (.+)$/) do |url|
@@ -35,15 +35,15 @@ When (/^we navigate to (.+)$/) do |url|
 end
 
 When (/^we fill the (.+) field with (.+)$/) do |field, value|
-  fill_in field, with: value
+  fill_in field, with: value, visible: false
 end
 
 When (/^we set (.+)$/) do |field|
-  check field
+  check field, visible: false
 end
 
 When (/^we click on (.+)$/) do |name|
-  click_on name
+  click_on name, visible: false
 end
 
 When ("we accept the alert") do

@@ -24,4 +24,5 @@ class Dog
         "#{CGI.escape(hkey)}"
     end
   end
+  set_table_name "#table_name#"
 end

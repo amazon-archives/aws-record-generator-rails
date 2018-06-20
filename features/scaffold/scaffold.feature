@@ -12,7 +12,7 @@
 # and limitations under the License.
 
 # language: en
-@dynamodb @modelgen @acceptancetest
+@dynamodb @modelgen @scaffoldtest
 Feature: Aws::Record::Generators::ScaffoldGenerator
 Scenario: Create a New Scaffold with ScaffoldGenerator
   When we run the rails command line with:
