@@ -24,7 +24,7 @@ After("@modelgen") do
 end
 
 When("we run the rails command line with:") do |cmd|
-  if cmd.start_with?('g aws_record:model')
+  if cmd.start_with?('g aws_record:model') || cmd.start_with?('g aws_record:scaffold')
     @table_name = cmd.split(' ')[2]
   end
 

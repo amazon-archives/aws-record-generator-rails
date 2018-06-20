@@ -58,7 +58,7 @@ module AwsRecord
       end
 
       def cleanup
-        # rm_rf @temp_root
+        rm_rf @temp_root
       end
 
       def run_generator(args = default_arguments, config = {})
