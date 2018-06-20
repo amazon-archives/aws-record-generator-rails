@@ -180,6 +180,10 @@ module AwsRecord
         end
       end
 
+      it 'it allows the generation of scaffold helpers' do
+        generate_and_assert_model "TestScaffoldHelpers", "test_scaffold_helpers", "--table_config=primary:5-2", "--scaffold"
+      end
+
     end
   end
 end

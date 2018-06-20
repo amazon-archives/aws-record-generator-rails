@@ -58,7 +58,7 @@ module AwsRecord
       end
 
       def cleanup
-        rm_rf @temp_root
+        # rm_rf @temp_root
       end
 
       def run_generator(args = default_arguments, config = {})
@@ -70,7 +70,7 @@ module AwsRecord
       private
 
       def setup_test_app
-        Rails::Generators::AppGenerator.start [destination_root, '--skip-bundle', '--skip-git', '--skip-spring', '--skip-test', '-d' , '--skip-javascript', '--force', '--quiet']
+        Rails::Generators::AppGenerator.start [destination_root, '--skip-bundle', '--skip-git', '--skip-spring', '--skip-test', '-d', '--force', '--quiet']
         `echo 'gem "aws-record-generator", :path => "../../"' >> "#{destination_root}/Gemfile"`
         `bundle install --gemfile "#{destination_root}/Gemfile"`
       end

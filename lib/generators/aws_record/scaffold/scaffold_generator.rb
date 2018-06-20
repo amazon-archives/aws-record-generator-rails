@@ -32,6 +32,12 @@ module AwsRecord
           invoke stylesheet_engine, [controller_name]
         end
       end
+
+      private
+      def initialize(args, *options)
+        options[0] << "--scaffold"
+        super
+      end
     end
   end
 end

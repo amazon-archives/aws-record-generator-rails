@@ -23,12 +23,12 @@ module AwsRecord
           rkey = !rkey.empty? ? rkey[0] : nil
 
           if rkey
-            """
-            id = params[:id].split('-')
-            #{klass}.find(#{hkey.name}: id[0], #{rkey.name}: id[1])
-            """
+            """lambda {
+              id = params[:id].split('&').map{ |param| CGI.unescape(param) }
+              #{klass}.find(#{hkey.name}: id[0], #{rkey.name}: id[1])
+            }.call()"""
           else
-            "#{klass}.find(#{hkey.name}: params[:id])"
+            "#{klass}.find(#{hkey.name}: CGI.unescape(params[:id]))"
           end
         end
   
