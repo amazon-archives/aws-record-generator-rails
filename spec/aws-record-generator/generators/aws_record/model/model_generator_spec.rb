@@ -197,6 +197,10 @@ module AwsRecord
         generate_and_assert_model "TestScaffoldHelpers", "--table_config=primary:5-2", "--scaffold"
       end
 
+      it 'it allows the generation of a password digest field' do
+        generate_and_assert_model "TestPasswordDigest", "--table_config=primary:5-2", "--password-digest"
+      end
+
     end
   end
 end

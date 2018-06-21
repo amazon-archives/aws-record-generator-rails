@@ -7,6 +7,13 @@ class TestScaffoldHelpers
   string_attr :uuid, hash_key: true
   
   # Scaffolding helpers
+  def initialize(args = {})
+    super
+    @errors = ActiveModel::Errors.new(self)
+  end
+
+  attr_reader :errors
+
   def to_model
     self
   end

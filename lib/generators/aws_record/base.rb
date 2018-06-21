@@ -22,6 +22,7 @@ module AwsRecord
         class_option :table_config, type: :hash, default: {}, banner: "primary:R-W [SecondaryIndex1:R-W]...", desc: "Declares the r/w units for the model as well as any secondary indexes", :required => true
         class_option :gsi, type: :array, default: [], banner: "name:hkey{field_name}[,rkey{field_name},proj_type{ALL|KEYS_ONLY|INCLUDE}]...", desc: "Allows for the declaration of secondary indexes"
         class_option :table_name, type: :string, banner: "model_table_name"
+        class_option :password_digest, type: :boolean, desc: "Whether to add a password_digest field to the model"
 
         class_option :required, type: :array, default: [], banner: "field1...", desc: "A list of attributes that are required for an instance of the model"
         class_option :length_validations, type: :hash, default: {}, banner: "field1:MIN-MAX...", desc: "Validations on the length of attributes in a model"
@@ -62,7 +63,11 @@ module AwsRecord
             end
           end
           self.attributes = self.attributes.compact
-  
+          
+          if options['password_digest']
+            self.attributes << GeneratedAttribute.new("password_digest", :string_attr, :digest => true)
+          end
+
           if options['timestamps']
             self.attributes << GeneratedAttribute.parse("created:datetime:default_value{Time.now}")
             self.attributes << GeneratedAttribute.parse("updated:datetime:default_value{Time.now}")
@@ -141,7 +146,7 @@ module AwsRecord
         def has_validations?
           !@required_attrs.empty? || !@length_validations.empty?
         end
-  
+
         def parse_table_config!
           return unless options['table_config']
 

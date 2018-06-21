@@ -20,22 +20,6 @@ module AwsRecord
       attr_reader :name, :type
       attr_accessor :options
 
-      def column_name
-        @name
-      end
-
-      def password_digest?
-        false
-      end
-
-      def polymorphic?
-        false
-      end
-
-      def human_name
-        name.humanize
-      end
-
       def field_type
         case @type
           when :integer_attr then :number_field
@@ -130,6 +114,28 @@ module AwsRecord
         @name = name
         @type = type
         @options = options
+        @digest = options.delete(:digest)
+      end
+
+      # Methods used by rails scaffolding
+      def password_digest?
+        @digest
+      end
+
+      def polymorphic?
+        false
+      end
+
+      def column_name
+        if @name == "password_digest"
+          "password"
+        else
+          @name
+        end
+      end
+
+      def human_name
+        name.humanize
       end
     end
   end

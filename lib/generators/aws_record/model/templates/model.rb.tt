@@ -1,6 +1,7 @@
 require 'aws-record'
-<%= "require 'active_model'
-" if has_validations? -%>
+<% if has_validations? -%>
+require 'active_model'
+<% end -%>
 
 <% module_namespacing do -%>
 class <%= class_name %>
@@ -10,6 +11,9 @@ class <%= class_name %>
 <% end -%>
 <% if has_validations? -%>
   include ActiveModel::Validations
+<% end -%>
+<% if options.key? :password_digest -%>
+  include ActiveModel::SecurePassword
 <% end -%>
 <% if mutation_tracking_disabled? -%>
   disable_mutation_tracking
@@ -37,6 +41,13 @@ class <%= class_name %>
 <% if options.key? :scaffold -%>
   
   # Scaffolding helpers
+  def initialize(args = {})
+    super
+    @errors = ActiveModel::Errors.new(self)
+  end
+
+  attr_reader :errors
+
   def to_model
     self
   end
@@ -55,6 +66,9 @@ class <%= class_name %>
 <% end -%>
 <% if options['table_name'] -%>
   set_table_name "<%= options['table_name'] %>"
+<% end -%>
+<% if options.key? :password_digest -%>
+  has_secure_password
 <% end -%>
 end
 <% end -%>
