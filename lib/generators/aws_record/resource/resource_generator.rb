@@ -13,7 +13,7 @@
 
 require "rails/generators/rails/resource_route/resource_route_generator"
 require "rails/generators/resource_helpers"
-require 'generators/aws_record/model/active_model'
+require 'generators/aws_record/active_model'
 
 module AwsRecord
   module Generators

@@ -33,6 +33,7 @@ module AwsRecord
         private
   
         def initialize(args, *options)
+          options[0] << "--skip-table-config" if options[1][:behavior] == :revoke
           @parse_errors = []
           
           super

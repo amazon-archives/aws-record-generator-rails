@@ -64,7 +64,7 @@ module AwsRecord
           end
         end
 
-        context 'it properly handles attribute options' do
+        context 'properly handles attribute options' do
 
           VALID_OPTIONS = {
             "hkey" => [:hash_key, true],

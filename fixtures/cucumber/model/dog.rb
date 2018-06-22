@@ -9,6 +9,13 @@ class Dog
   boolean_attr :is_good_boy
   
   # Scaffolding helpers
+  def initialize(args = {})
+    super
+    @errors = ActiveModel::Errors.new(self)
+  end
+
+  attr_reader :errors
+
   def to_model
     self
   end

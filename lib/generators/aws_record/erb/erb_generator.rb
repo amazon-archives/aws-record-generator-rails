@@ -22,6 +22,11 @@ module AwsRecord
 
       argument :attributes, type: :array, default: [], banner: "field:type field:type"
 
+      def initialize(args, *options)
+        options[0] << "--skip-table-config"
+        super
+      end
+
       def create_root_folder
         empty_directory File.join("app/views", controller_file_path)
       end

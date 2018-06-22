@@ -12,7 +12,7 @@
 # and limitations under the License.
 
 require "rails/generators/resource_helpers"
-require 'generators/aws_record/model/active_model'
+require 'generators/aws_record/active_model'
 
 module AwsRecord
   module Generators
@@ -29,6 +29,11 @@ module AwsRecord
                          desc: "Generates API controller"
 
       argument :attributes, type: :array, default: [], banner: "field:type field:type"
+
+      def initialize(args, *options)
+        options[0] << "--skip-table-config"
+        super
+      end
 
       def create_controller_files
         template_file = options.api? ? "api_controller.rb" : "controller.rb"

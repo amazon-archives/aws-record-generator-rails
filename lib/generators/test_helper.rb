@@ -11,8 +11,10 @@
 # or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
-require 'rails/generators/rails/app/app_generator'
+require "rails/generators/rails/app/app_generator"
 require "rails/generators/testing/behaviour"
+require "rails/generators/testing/assertions"
+require "test/unit/assertions"
 require "fileutils"
 require "minitest/spec"
 
@@ -20,9 +22,11 @@ module AwsRecord
   module Generators
     class GeneratorTestHelper
       include Minitest::Assertions
+      include Test::Unit::Assertions
       attr_accessor :assertions
 
       include Rails::Generators::Testing::Behaviour
+      include Rails::Generators::Testing::Assertions
       include FileUtils
 
       def initialize(klass, dest)
@@ -47,7 +51,7 @@ module AwsRecord
         ensure_current_path
       end
 
-      def assert_file(generated_file, actual_file)
+      def assert_file_fixture(generated_file, actual_file)
         assert File.exist?(generated_file), "Expected file #{generated_file.inspect} to exist, but does not"
         assert File.exist?(actual_file), "Expected file #{actual_file.inspect} to exist, but does not"
         assert identical? generated_file, actual_file
@@ -64,18 +68,16 @@ module AwsRecord
         assert fixture == generated
       end
 
-      def assert_not_file(file_path)
-        assert !File.exist?(file_path), "Expected file #{file_path.inspect} to not exist, but does"
-      end
-
       def cleanup
         # rm_rf @temp_root
       end
 
       def run_generator(args = default_arguments, config = {})
+        result = nil
         capture(:stderr) do
-          super
+          result = super
         end
+        result
       end
 
       private

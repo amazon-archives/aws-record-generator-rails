@@ -19,7 +19,10 @@ module AwsRecord
   module Generators
     class ModelGenerator < Base
 
-      source_root File.expand_path('../templates', __FILE__)
+      def initialize(args, *options)
+        self.class.source_root File.expand_path('../templates', __FILE__)
+        super
+      end
 
       def create_model
         template "model.rb", File.join("app/models", class_path, "#{file_name}.rb")
