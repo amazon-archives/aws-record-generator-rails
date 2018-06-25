@@ -72,7 +72,7 @@ module AwsRecord
   
         @gen_helper.assert_file "app/controllers/api_controller_skeleton_tests_controller.rb" do |content|
           @gen_helper.assert_match(/class ApiControllerSkeletonTestsController < ApplicationController/, content)
-          @gen_helper.assert_no_match(/respond_to/, content)
+          @gen_helper.refute_match(/respond_to/, content)
   
           @gen_helper.assert_match(/before_action :set_api_controller_skeleton_test, only: \[:show, :update, :destroy\]/, content)
   

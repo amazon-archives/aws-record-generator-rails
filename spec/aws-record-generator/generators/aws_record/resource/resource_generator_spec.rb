@@ -43,7 +43,7 @@ module AwsRecord
         @gen_helper.run_generator ["account"], behavior: :revoke
     
         @gen_helper.assert_file "config/routes.rb" do |route|
-          @gen_helper.assert_no_match(/resources :accounts$/, route)
+          @gen_helper.refute_match(/resources :accounts$/, route)
         end
       end
 

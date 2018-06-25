@@ -34,7 +34,8 @@ Before("@scaffoldtest") do
 end
 
 After("@scaffoldtest") do
-  `kill $(lsof -t -i:8080)`
+  Process.kill("TERM", @rails_app)
+  Process.wait(@rails_app)
 end
 
 When (/^we navigate to (.+)$/) do |url|
