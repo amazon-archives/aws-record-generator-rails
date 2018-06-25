@@ -14,6 +14,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.files = Dir['lib/tasks/table_config_migrate_task.rake', 'lib/**/*.rb', 'lib/**/*.tt', 'lib/**/USAGE']
 
-  spec.add_dependency('aws-record', '~> 2')
+  spec.add_dependency('aws-record', '~> 2.1')
   spec.add_dependency('rails', '>= 4.2')
 end

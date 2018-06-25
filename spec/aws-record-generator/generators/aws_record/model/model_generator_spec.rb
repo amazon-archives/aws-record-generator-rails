@@ -20,7 +20,7 @@ def generate_and_assert_model(name, *opts)
 
   generated_file_path = File.join(@gen_helper.destination_root, "app/models/#{file_name}.rb")
   fixture_file_path = File.expand_path("fixtures/unit/model/#{file_name}.rb")
-  @gen_helper.assert_file(generated_file_path, fixture_file_path)
+  @gen_helper.assert_file_fixture(generated_file_path, fixture_file_path)
 end
 
 def generate_and_assert_table_config(name, *opts)
@@ -30,7 +30,7 @@ def generate_and_assert_table_config(name, *opts)
 
   generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{file_name}_config.rb")
   fixture_file_path = File.expand_path("fixtures/unit/table_config/#{file_name}_config.rb")
-  @gen_helper.assert_file(generated_file_path, fixture_file_path)
+  @gen_helper.assert_file_fixture(generated_file_path, fixture_file_path)
 end
 
 module AwsRecord
@@ -45,12 +45,12 @@ module AwsRecord
         @gen_helper.cleanup
       end
 
-      context 'it properly generates basic models' do
+      context 'properly generates basic models' do
         it 'properly creates a model with one field' do
           generate_and_assert_model 'TestModelBasic', "uuid:hkey", "--table-config=primary:5-2"
         end
 
-        context 'it creates an hkey when one is not provided' do
+        context 'creates an hkey when one is not provided' do
           it 'creates a uuid hkey when no fields are provided' do
             generate_and_assert_model 'TestModelFieldsAbsentAutoUuid', "--table-config=primary:5-2"
           end
@@ -77,7 +77,7 @@ module AwsRecord
             @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "uuid", "--table-config=primary:5-2"]
           }.to raise_error(SystemExit)
 
-          @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
+          @gen_helper.assert_no_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
         end
 
         it 'enforces the uniqueness of field db_attribute_name across fields' do
@@ -85,7 +85,7 @@ module AwsRecord
             @gen_helper.run_generator ["TestModel_Err", "uuid:hkey", "long_title:db_attr_name{uuid}", "--table-config=primary:5-2"]
           }.to raise_error(SystemExit)
 
-          @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
+          @gen_helper.assert_no_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
         end
 
         it 'raises an ArgumentError if any of the fields have errors' do
@@ -112,7 +112,7 @@ module AwsRecord
         end
       end
 
-      context 'it properly handles generating secondary indexes' do
+      context 'properly handles generating secondary indexes' do
         context 'gsis are properly inserted into models' do
           it 'generates a gsi with only rkey' do
             generate_and_assert_model "TestModelGSIBasic", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"
@@ -131,7 +131,7 @@ module AwsRecord
               @gen_helper.run_generator ["TestModel_Err", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"]
             }.to raise_error(SystemExit)
 
-            @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
+            @gen_helper.assert_no_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
           end
 
           it 'enforces that a given rkey is a valid field in the model' do
@@ -139,7 +139,7 @@ module AwsRecord
               @gen_helper.run_generator ["TestModel_Err", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"]
             }.to raise_error(SystemExit)
 
-            @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
+            @gen_helper.assert_no_file(File.join(@gen_helper.destination_root, "app/models/test_model_err.rb"))
           end
         end
 
@@ -166,13 +166,13 @@ module AwsRecord
         end
       end
 
-      context 'it allows users to automatically add timestamps to their model' do
+      context 'allows users to automatically add timestamps to their model' do
         it 'creates timestamps when the flag is enabled' do
           generate_and_assert_model "TestModelTimestamps", "--timestamps", "--table_config=primary:5-2"
         end
       end
 
-      context 'it allows use of basic ActiveModel validations' do
+      context 'allows use of basic ActiveModel validations' do
         it 'allows specification of required validations' do
           generate_and_assert_model "TestRequiredValidations", "title", "body", "--required=title", "body", "--table_config=primary:5-2"
         end
@@ -186,11 +186,19 @@ module AwsRecord
         end
       end
 
-      context 'it allows you to disable table_config generation' do
+      context 'allows you to disable table_config generation' do
         it 'allows specification of required validations' do
           @gen_helper.run_generator ["TestSkipTableConfig", "--skip-table-config"]
-          @gen_helper.assert_not_file(File.join(@gen_helper.destination_root, "app/models/test_skip_table_config_config.rb"))
+          @gen_helper.assert_no_file(File.join(@gen_helper.destination_root, "app/models/test_skip_table_config_config.rb"))
         end
+      end
+
+      it 'allows the generation of scaffold helpers' do
+        generate_and_assert_model "TestScaffoldHelpers", "--table_config=primary:5-2", "--scaffold"
+      end
+
+      it 'allows the generation of a password digest field' do
+        generate_and_assert_model "TestPasswordDigest", "--table_config=primary:5-2", "--password-digest"
       end
 
     end

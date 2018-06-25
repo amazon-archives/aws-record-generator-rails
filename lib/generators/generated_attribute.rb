@@ -20,6 +20,16 @@ module AwsRecord
       attr_reader :name, :type
       attr_accessor :options
 
+      def field_type
+        case @type
+          when :integer_attr then :number_field
+          when :date_attr then :date_select
+          when :datetime_attr then :datetime_select
+          when :boolean_attr then :check_box
+          else :text_field
+        end
+      end
+
       class << self
 
         def parse(field_definition)
@@ -104,6 +114,28 @@ module AwsRecord
         @name = name
         @type = type
         @options = options
+        @digest = options.delete(:digest)
+      end
+
+      # Methods used by rails scaffolding
+      def password_digest?
+        @digest
+      end
+
+      def polymorphic?
+        false
+      end
+
+      def column_name
+        if @name == "password_digest"
+          "password"
+        else
+          @name
+        end
+      end
+
+      def human_name
+        name.humanize
       end
     end
   end

@@ -30,8 +30,6 @@ end
 ```
 Which will cause `aws_record:model` to be invoked by the Rails model generator.
 
-NOTE: At the present moment `aws_record:model` is not compatible with Rails scaffolding
-
 
 ### Generating a model
 
@@ -135,6 +133,12 @@ end
 
 To migrate your new models and begin using them you can run the provided rake task: `rails aws_record:migrate`
 
+
+### Scaffolding
+
+If you invoke `aws_record:scaffold` instead of `aws_record:model` then the generator will construct a full controller-view-model structure. 
+
+
 ### Docs
 
 The syntax for creating an aws-record model follows:
@@ -183,6 +187,8 @@ Command Option Names | Purpose
   [--length-validations=field1:MIN-MAX...]                                              | Validations on the length of attributes in a model
   [--table-name=name] | Sets the name of the table in DynamoDB, if different than the model name
   [--skip-table-config] | Doesn't generate a table config for the model
+  [--password-digest] | Adds a password field (note that you must have bcrypt has a dependency) that automatically hashes and manages the model password
+  [--scaffold] | Adds helpers methods that are used by the scaffolding
 
 The included rake task `aws_record:migrate` will run all of the migrations in `app/db/table_config`
 

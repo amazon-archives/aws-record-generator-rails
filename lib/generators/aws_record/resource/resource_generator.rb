@@ -11,27 +11,21 @@
 # or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
-require 'rails/generators'
-require 'aws-record-generator'
-require 'generators/aws_record/base'
+require "rails/generators/rails/resource_route/resource_route_generator"
+require "rails/generators/resource_helpers"
+require 'generators/aws_record/active_model'
 
 module AwsRecord
   module Generators
-    class ModelGenerator < Base
+    class ResourceGenerator < ModelGenerator
+      include Rails::Generators::ResourceHelpers
 
-      def initialize(args, *options)
-        self.class.source_root File.expand_path('../templates', __FILE__)
-        super
+      hook_for :resource_route, in: :rails, required: true
+
+      private
+      def orm_class
+        @orm_class = AwsRecord::Generators::ActiveModel
       end
-
-      def create_model
-        template "model.rb", File.join("app/models", class_path, "#{file_name}.rb")
-      end
-
-      def create_table_config
-        template "table_config.rb", File.join("db/table_config", class_path, "#{file_name}_config.rb") unless options.key?(:skip_table_config)
-      end
-
     end
   end
 end
