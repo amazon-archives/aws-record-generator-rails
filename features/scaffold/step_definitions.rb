@@ -24,7 +24,10 @@ Before("@scaffoldtest") do
     config.app_host = 'http://localhost:8080'
   end
   
-  @rails_app = Kernel.spawn("cd tmp/test_app && rails server --port 8080", :out => "tmp/test_server.log")
+  Dir.chdir "tmp/test_app"
+  @rails_app = Kernel.spawn("rails server --port 8080", :out => "tmp/test_server.log")
+  Dir.chdir "../../"
+
   begin
     sleep(5) # Wait for test server to boot
     URI.parse("http://localhost:8080").read
