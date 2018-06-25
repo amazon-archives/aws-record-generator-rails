@@ -8,6 +8,8 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>
   def index
+    # Warning: This performs a full table scan, which can be very expensive if a table has many entries.
+    # It is strongly recommended to implement alternative approaches such as paginated queries.
     @<%= plural_table_name %> = <%= orm_class.all(class_name) %>
   end
 

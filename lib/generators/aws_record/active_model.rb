@@ -22,7 +22,7 @@ module AwsRecord
   
         # GET index
         def self.all(klass)
-          "#{klass}.scan # Using #{klass}.page or implementing pagination is a better option than a full table scan"
+          "#{klass}.scan"
         end
   
         # GET show

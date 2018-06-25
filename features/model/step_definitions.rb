@@ -50,7 +50,7 @@ Then("a {string} should be generated matching fixture at: {string}") do |generat
     @model = Object.const_get("#{@model_name}")
   elsif generated_type == "table_config"
     generated_file_path = File.join(@gen_helper.destination_root, "db/table_config/#{file_prefix}.rb")
-    @gen_helper.assert_file(generated_file_path, fixture_file_path)
+    @gen_helper.assert_file_fixture(generated_file_path, fixture_file_path)
     
     load generated_file_path
     @table_config = ModelTableConfig.config

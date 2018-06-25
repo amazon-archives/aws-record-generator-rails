@@ -12,9 +12,11 @@
 # and limitations under the License.
 
 require 'capybara/cucumber'
+require 'aws-record-generator'
 require 'active_model'
+require "open-uri"
 
-Before do
+Before("@scaffoldtest") do
   Capybara.configure do |config|
     config.run_server = false
     config.always_include_port = true
@@ -23,11 +25,16 @@ Before do
   end
   
   @rails_app = Kernel.spawn("cd tmp/test_app && rails server --port 8080", :out => "tmp/test_server.log")
+  begin
+    sleep(5) # Wait for test server to boot
+    URI.parse("http://localhost:8080").read
+  rescue Exception => e
+    abort("Test Server Error: #{e}")
+  end
 end
 
 After("@scaffoldtest") do
-  Process.kill("TERM", @rails_app)
-  Process.wait(@rails_app)
+  `kill $(lsof -t -i:8080)`
 end
 
 When (/^we navigate to (.+)$/) do |url|

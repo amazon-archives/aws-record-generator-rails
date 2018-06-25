@@ -14,7 +14,6 @@
 require "rails/generators/rails/app/app_generator"
 require "rails/generators/testing/behaviour"
 require "rails/generators/testing/assertions"
-require "test/unit/assertions"
 require "fileutils"
 require "minitest/spec"
 
@@ -22,7 +21,6 @@ module AwsRecord
   module Generators
     class GeneratorTestHelper
       include Minitest::Assertions
-      include Test::Unit::Assertions
       attr_accessor :assertions
 
       include Rails::Generators::Testing::Behaviour
@@ -69,7 +67,7 @@ module AwsRecord
       end
 
       def cleanup
-        # rm_rf @temp_root
+        rm_rf @temp_root
       end
 
       def run_generator(args = default_arguments, config = {})
