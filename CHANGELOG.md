@@ -4,6 +4,8 @@ Unreleased Changes
 1.0.0.pre.2 (2018-07-09)
 ------------------
 
+* Feature - Add scoffolding commands to generators.
+
 1.0.0.pre.1 (2018-06-13)
 ------------------
 
