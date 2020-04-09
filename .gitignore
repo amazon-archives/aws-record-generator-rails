@@ -6,6 +6,7 @@
 /pkg/
 /spec/reports/
 /tmp/
+/.release/
 .byebug_history
 Gemfile.lock
 .DS_Store
