@@ -81,7 +81,7 @@ module AwsRecord
       private
 
       def setup_test_app
-        Rails::Generators::AppGenerator.start [destination_root, '--skip-bundle', '--skip-git', '--skip-spring', '--skip-test', '--force', '--quiet']
+        Rails::Generators::AppGenerator.start [destination_root, '--skip-bundle', '--skip-git', '--skip-spring', '--skip-test', '--force', '--quiet', '--skip-webpack-install']
         `echo 'gem "aws-record-generator", :path => "../../"' >> "#{destination_root}/Gemfile"`
         `bundle install --gemfile "#{destination_root}/Gemfile"`
       end
