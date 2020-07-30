@@ -1,15 +1,4 @@
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-/.release/
-.byebug_history
+.ruby-version
+.yardoc/
 Gemfile.lock
-.DS_Store
-
-# rspec failure tracking
-.rspec_status
+doc
