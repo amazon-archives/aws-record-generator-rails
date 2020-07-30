@@ -33,7 +33,7 @@ module AwsRecord
         GeneratorTestHelper.tests klass
         temp_app_dest = File.join(File.expand_path(@temp_root, __dir__), "test_app")
         GeneratorTestHelper.destination temp_app_dest
-        
+
         destination_root_is_set?
         prepare_destination
         setup_test_app

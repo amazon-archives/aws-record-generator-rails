@@ -13,6 +13,6 @@ rvm:
 
 sudo: false
 
-script: bundle exec rake
+script: bundle exec rake test
 
 bundler_args: --without docs release repl
