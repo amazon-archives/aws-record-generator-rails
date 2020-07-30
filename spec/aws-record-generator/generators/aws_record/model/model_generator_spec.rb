@@ -40,7 +40,7 @@ module AwsRecord
       before(:all) do
         @gen_helper = GeneratorTestHelper.new(ModelGenerator, "tmp")
       end
-      
+
       after(:all) do
         @gen_helper.cleanup
       end
@@ -122,7 +122,7 @@ module AwsRecord
             generate_and_assert_model "TestModelGSIKeys", "gsi_hkey", "gsi_rkey", "--gsi=SecondaryIndex:hkey{gsi_hkey},rkey{gsi_rkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2"
           end
 
-          it 'generates a model with multiple gsis' do 
+          it 'generates a model with multiple gsis' do
             generate_and_assert_model "TestModelGSIMult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}", "--table-config=primary:5-2", "SecondaryIndex:5-2", "SecondaryIndex2:5-2"
           end
 
@@ -154,7 +154,7 @@ module AwsRecord
             generate_and_assert_table_config "TestTableConfigGSIProvided", "gsi_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "--table-config=primary:5-2", "SecondaryIndex:50-100"
           end
 
-          it 'generates a table_config with multiple gsis' do 
+          it 'generates a table_config with multiple gsis' do
             generate_and_assert_table_config "TestTable_ConfigGSIMult", "gsi_hkey", "gsi2_hkey", "--gsi=SecondaryIndex:hkey{gsi_hkey}", "SecondaryIndex2:hkey{gsi2_hkey}", "--table-config=primary:5-2", "SecondaryIndex:10-11", "SecondaryIndex2:40-20"
           end
 
@@ -174,7 +174,7 @@ module AwsRecord
 
       context 'allows use of basic ActiveModel validations' do
         it 'allows specification of required validations' do
-          generate_and_assert_model "TestRequiredValidations", "title", "body", "--required=title", "body", "--table_config=primary:5-2"
+          generate_and_assert_model "TestRequiredValidations", "title", "body", "--required=title,body", "--table_config=primary:5-2"
         end
 
         it 'allows specification of length validations' do
@@ -182,7 +182,7 @@ module AwsRecord
         end
 
         it 'allows specification of a combination of validations' do
-          generate_and_assert_model "TestValidations", "title", "body", "--required=title", "body", "--length-validations=title:5-10", "body:100-250", "--table_config=primary:5-2"
+          generate_and_assert_model "TestValidations", "title", "body", "--required=title,body", "--length-validations=title:5-10", "body:100-250", "--table_config=primary:5-2"
         end
       end
 
