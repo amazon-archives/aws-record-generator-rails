@@ -1,7 +1,6 @@
 language: ruby
 
 rvm:
-  - 2.0
   - 2.1
   - 2.2
   - 2.3
@@ -14,6 +13,6 @@ rvm:
 
 sudo: false
 
-script: bundle exec rake test
+script: bundle exec rake
 
 bundler_args: --without docs release repl
