@@ -1,3 +1,9 @@
+# AWS Record Rails Generators have been moved to aws-sdk-rails
+
+This feature has been moved to [aws-sdk-rails](https://github.com/aws/aws-sdk-rails).
+
+This documentation will remain for historical purposes.
+
 ## AWS Record Generator
 
 Allows the generation of aws-record models using a Rails generator
